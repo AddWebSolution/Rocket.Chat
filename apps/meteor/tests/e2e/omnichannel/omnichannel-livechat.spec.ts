@@ -151,9 +151,9 @@ test.describe.serial('OC - Livechat', () => {
 });
 
 
-test.describe('OC - Livechat Livechat_clear_local_storage_when_chat_ended enabled', () => {
+test.describe.serial('OC - Livechat Livechat_clear_local_storage_when_chat_ended enabled', () => {
 
-	test.fail();
+	
 	let poLiveChat: OmnichannelLiveChat;
 	let poHomeOmnichannel: HomeOmnichannel;
 
@@ -203,6 +203,7 @@ test.describe('OC - Livechat Livechat_clear_local_storage_when_chat_ended enable
 	});
 
 	test('OC - Livechat - Send message to livechat custumer', async () => {
+		test.fail();
 		await poHomeOmnichannel.sidenav.openChat(firstVisitor.name);
 
 		await test.step('expect message to be sent by agent', async () => {
