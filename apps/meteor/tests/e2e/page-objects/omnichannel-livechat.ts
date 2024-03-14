@@ -112,4 +112,12 @@ export class OmnichannelLiveChat {
 		await this.btnSendMessage(buttonLabel).click();
 		await this.page.waitForSelector('[data-qa="livechat-composer"]');
 	}
+
+	public async sendMessageAndCloseChat(liveChatUser: { name: string; email: string }): Promise<void> {
+		await this.openLiveChat();
+		await this.sendMessage(liveChatUser, false);
+		await this.onlineAgentMessage.type('this_a_test_message_from_user');
+		await this.btnSendMessageToOnlineAgent.click();
+		await this.closeChat();
+	}
 }
