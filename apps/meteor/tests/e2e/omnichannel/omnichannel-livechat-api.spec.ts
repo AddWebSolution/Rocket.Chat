@@ -261,6 +261,7 @@ test.describe('OC - Livechat API', () => {
 		test.afterEach(async () => {
 			await poAuxContext.page.close();
 			await page.close();
+			await poAuxContext2?.page.close();
 		});
 
 		test.afterAll(async ({ api }) => {
