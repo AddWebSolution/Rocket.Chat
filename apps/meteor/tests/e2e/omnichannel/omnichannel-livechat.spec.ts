@@ -47,7 +47,7 @@ test.describe.serial('OC - Livechat', () => {
 
 	test('OC - Livechat - Send message to online agent', async () => {
 		await test.step('expect message to be sent by livechat', async () => {
-			await poLiveChat.openLiveChat();
+			await poLiveChat.openAnyLiveChat();
 			await poLiveChat.sendMessage(firstUser, false);
 
 			await poLiveChat.onlineAgentMessage.fill('this_a_test_message_from_user');
@@ -72,7 +72,7 @@ test.describe.serial('OC - Livechat', () => {
 		});
 
 		await test.step('expect when user minimizes the livechat screen, the composer should be hidden', async () => {
-			await poLiveChat.openLiveChat();
+			await poLiveChat.openAnyLiveChat();
 			await expect(poLiveChat.page.locator('[contenteditable="true"]')).not.toBeVisible();
 		});
 
