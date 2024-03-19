@@ -23,22 +23,25 @@ test.use({ storageState: Users.user1.state });
 test.describe.serial('OC - Livechat', () => {
 	let poLiveChat: OmnichannelLiveChat;
 	let poHomeOmnichannel: HomeOmnichannel;
-
-	test.beforeAll(async ({ api }) => {
-		const statusCode = (await api.post('/livechat/users/agent', { username: 'user1' })).status();
-		await expect(statusCode).toBe(200);
-	});
+	let agent: Awaited<ReturnType<typeof createAgent>>;
 
 	test.beforeAll(async ({ browser, api }) => {
-		const { page: omniPage } = await createAuxContext(browser, Users.user1, '/', true);
-		poHomeOmnichannel = new HomeOmnichannel(omniPage);
+		agent = await createAgent(api, 'user1')
 
 		const { page: livechatPage } = await createAuxContext(browser, Users.user1, '/livechat', false);
+
 		poLiveChat = new OmnichannelLiveChat(livechatPage, api);
 	});
 
-	test.afterAll(async ({ api }) => {
-		await api.delete('/livechat/users/agent/user1');
+	test.beforeEach(async ({ page }) => {
+		poHomeOmnichannel = new HomeOmnichannel(page);
+
+		await page.goto('/');
+		await page.locator('.main-content').waitFor();
+	});
+
+	test.afterAll(async () => {
+		await agent.delete();
 		await poLiveChat.page?.close();
 	});
 
@@ -123,7 +126,7 @@ test.describe.serial('OC - Livechat - Resub after close room', () => {
 	});
 
 	test('OC - Livechat - Resub after close room', async () => {
-		await test.step('expect livechat conversation to be opened again', async () => {
+		await test.step('expect livechat conversation to be opened again, different guest', async () => {
 			await poLiveChat.startNewChat();
 			await poLiveChat.sendMessage(secondUser, false);
 			await poLiveChat.onlineAgentMessage.fill('this_a_test_message_from_user');
@@ -192,7 +195,7 @@ test.describe('OC - Livechat - Resume chat after closing', () => {
 
 test.describe('OC - Livechat - Department Flow', () => {
 	// Needs Departments to test this, so needs an EE license for multiple deps
-	test.skip(!IS_EE, 'Enterprise Only');
+	// test.skip(!IS_EE, 'Enterprise Only');
 
 	let poLiveChat: OmnichannelLiveChat;
 	let poHomeOmnichannelAgent1: HomeOmnichannel;
