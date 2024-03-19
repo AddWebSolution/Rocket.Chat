@@ -195,7 +195,7 @@ test.describe('OC - Livechat - Resume chat after closing', () => {
 
 test.describe('OC - Livechat - Department Flow', () => {
 	// Needs Departments to test this, so needs an EE license for multiple deps
-	// test.skip(!IS_EE, 'Enterprise Only');
+	test.skip(!IS_EE, 'Enterprise Only');
 
 	let poLiveChat: OmnichannelLiveChat;
 	let poHomeOmnichannelAgent1: HomeOmnichannel;
