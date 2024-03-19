@@ -196,6 +196,68 @@ test.describe('OC - Livechat - Resume chat after closing', () => {
 	});
 });
 
+test.describe('OC - Livechat - Close chat using widget', () => {
+	let poLiveChat: OmnichannelLiveChat;
+	let poHomeOmnichannel: HomeOmnichannel;
+	let agent: Awaited<ReturnType<typeof createAgent>>;
+
+	test.beforeAll(async ({ browser, api }) => {
+		agent = await createAgent(api, 'user1');
+
+		const { page } = await createAuxContext(browser, Users.user1, '/');
+		poHomeOmnichannel = new HomeOmnichannel(page);
+	});
+
+	test.beforeEach(async ({ page,api }) => {
+		poLiveChat = new OmnichannelLiveChat(page, api);
+
+		await poLiveChat.page.goto('/livechat');
+	});
+
+	test.afterAll(async () => {
+		await poHomeOmnichannel.page?.close();
+		await agent.delete();
+	});
+
+	test('OC - Livechat - Close Chat', async () => {
+		await poLiveChat.openAnyLiveChat();
+		await poLiveChat.sendMessage(firstUser, false);
+		await poLiveChat.onlineAgentMessage.fill('this_a_test_message_from_user');
+		await poLiveChat.btnSendMessageToOnlineAgent.click();
+
+		await test.step('expect to close a livechat conversation', async () => {
+			await expect(poLiveChat.btnOptions).toBeVisible();
+			await poLiveChat.btnOptions.click();
+
+			await expect(poLiveChat.btnCloseChat).toBeVisible();
+			await poLiveChat.btnCloseChat.click();
+			
+			await poLiveChat.btnCloseChatConfirm.click();
+
+			await expect(poLiveChat.btnNewChat).toBeVisible();
+		});
+	});
+
+	test('OC - Livechat - Close Chat twice', async () => {
+		await poLiveChat.sendMessageAndCloseChat(firstUser);
+		await poLiveChat.startNewChat();
+		await poLiveChat.onlineAgentMessage.fill('this_a_test_message_from_user');
+		await poLiveChat.btnSendMessageToOnlineAgent.click();
+
+		await test.step('expect to close a livechat conversation a second time', async () => {
+			await expect(poLiveChat.btnOptions).toBeVisible();
+			await poLiveChat.btnOptions.click();
+
+			await expect(poLiveChat.btnCloseChat).toBeVisible();
+			await poLiveChat.btnCloseChat.click();
+			
+			await poLiveChat.btnCloseChatConfirm.click();
+
+			await expect(poLiveChat.btnNewChat).toBeVisible();
+		});
+	});
+});
+
 test.describe('OC - Livechat - Department Flow', () => {
 	// Needs Departments to test this, so needs an EE license for multiple deps
 	test.skip(!IS_EE, 'Enterprise Only');

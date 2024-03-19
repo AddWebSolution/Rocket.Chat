@@ -151,7 +151,7 @@ export class OmnichannelLiveChat {
 		liveChatUser: { name: string; email: string },
 		message = 'this_a_test_message_from_user',
 	): Promise<void> {
-		await this.openLiveChat();
+		await this.openAnyLiveChat();
 		await this.sendMessage(liveChatUser, false);
 		await this.onlineAgentMessage.type(message);
 		await this.btnSendMessageToOnlineAgent.click();
