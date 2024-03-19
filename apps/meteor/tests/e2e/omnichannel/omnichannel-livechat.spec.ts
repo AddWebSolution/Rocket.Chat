@@ -23,11 +23,13 @@ test.use({ storageState: Users.user1.state });
 test.describe.serial('OC - Livechat', () => {
 	let poLiveChat: OmnichannelLiveChat;
 	let poHomeOmnichannel: HomeOmnichannel;
-	let agent: Awaited<ReturnType<typeof createAgent>>;
+
+	test.beforeAll(async ({ api }) => {
+		const statusCode = (await api.post('/livechat/users/agent', { username: 'user1' })).status();
+		await expect(statusCode).toBe(200);
+	});
 
 	test.beforeAll(async ({ browser, api }) => {
-		agent = await createAgent(api, 'user1')
-
 		const { page: livechatPage } = await createAuxContext(browser, Users.user1, '/livechat', false);
 
 		poLiveChat = new OmnichannelLiveChat(livechatPage, api);
@@ -40,8 +42,8 @@ test.describe.serial('OC - Livechat', () => {
 		await page.locator('.main-content').waitFor();
 	});
 
-	test.afterAll(async () => {
-		await agent.delete();
+	test.afterAll(async ({ api }) => {
+		await api.delete('/livechat/users/agent/user1');
 		await poLiveChat.page?.close();
 	});
 
