@@ -178,7 +178,7 @@ test.describe('OC - Livechat - Resume chat after closing', () => {
 		});
 
 		await test.step('expect message to be received by agent', async () => {
-			await poHomeOmnichannel.sidenav.openChat(secondUser.name);
+			await poHomeOmnichannel.sidenav.openChat(firstUser.name);
 			await expect(poHomeOmnichannel.content.lastUserMessage).toBeVisible();
 			await expect(poHomeOmnichannel.content.lastUserMessage).toContainText('this_a_test_message_from_user');
 		});
