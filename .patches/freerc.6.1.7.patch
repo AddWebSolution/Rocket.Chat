@@ -1,0 +1,528 @@
+diff --git a/apps/meteor/app/lib/server/functions/addOAuthService.ts b/apps/meteor/app/lib/server/functions/addOAuthService.ts
+index 089cce18ce..aa7db9e806 100644
+--- a/apps/meteor/app/lib/server/functions/addOAuthService.ts
++++ b/apps/meteor/app/lib/server/functions/addOAuthService.ts
+@@ -170,7 +170,7 @@ export function addOAuthService(name: string, values: { [k: string]: string | bo
+ 		group: 'OAuth',
+ 		section: `Custom OAuth: ${name}`,
+ 		i18nLabel: 'Accounts_OAuth_Custom_Roles_Claim',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: 'roles',
+ 		modules: ['oauth-enterprise'],
+ 	});
+@@ -179,7 +179,7 @@ export function addOAuthService(name: string, values: { [k: string]: string | bo
+ 		group: 'OAuth',
+ 		section: `Custom OAuth: ${name}`,
+ 		i18nLabel: 'Accounts_OAuth_Custom_Groups_Claim',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: 'groups',
+ 		modules: ['oauth-enterprise'],
+ 	});
+@@ -196,7 +196,7 @@ export function addOAuthService(name: string, values: { [k: string]: string | bo
+ 		group: 'OAuth',
+ 		section: `Custom OAuth: ${name}`,
+ 		i18nLabel: 'Accounts_OAuth_Custom_Map_Channels',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: false,
+ 		modules: ['oauth-enterprise'],
+ 	});
+@@ -205,7 +205,7 @@ export function addOAuthService(name: string, values: { [k: string]: string | bo
+ 		group: 'OAuth',
+ 		section: `Custom OAuth: ${name}`,
+ 		i18nLabel: 'Accounts_OAuth_Custom_Merge_Roles',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: false,
+ 		modules: ['oauth-enterprise'],
+ 	});
+@@ -215,7 +215,7 @@ export function addOAuthService(name: string, values: { [k: string]: string | bo
+ 		section: `Custom OAuth: ${name}`,
+ 		i18nLabel: 'Accounts_OAuth_Custom_Roles_To_Sync',
+ 		i18nDescription: 'Accounts_OAuth_Custom_Roles_To_Sync_Description',
+-		enterprise: true,
++		enterprise: false,
+ 		enableQuery: {
+ 			_id: `Accounts_OAuth_Custom-${name}-merge_roles`,
+ 			value: true,
+diff --git a/apps/meteor/app/lib/server/startup/settings.ts b/apps/meteor/app/lib/server/startup/settings.ts
+index f915ca6f35..b07a07ba23 100644
+--- a/apps/meteor/app/lib/server/startup/settings.ts
++++ b/apps/meteor/app/lib/server/startup/settings.ts
+@@ -1199,16 +1199,16 @@ settingsRegistry.addGroup('Message', function () {
+ 		});
+ 	});
+ 	this.section('Read_Receipts', function () {
+-		this.add('Message_Read_Receipt_Enabled', false, {
++		this.add('Message_Read_Receipt_Enabled', true, {
+ 			type: 'boolean',
+-			enterprise: true,
++			enterprise: false,
+ 			invalidValue: false,
+ 			modules: ['message-read-receipt'],
+ 			public: true,
+ 		});
+-		this.add('Message_Read_Receipt_Store_Users', false, {
++		this.add('Message_Read_Receipt_Store_Users', true, {
+ 			type: 'boolean',
+-			enterprise: true,
++			enterprise: false,
+ 			invalidValue: false,
+ 			modules: ['message-read-receipt'],
+ 			public: true,
+@@ -1549,7 +1549,7 @@ settingsRegistry.addGroup('Push', function () {
+ 		});
+ 		this.add('Push_request_content_from_server', true, {
+ 			type: 'boolean',
+-			enterprise: true,
++			enterprise: false,
+ 			invalidValue: false,
+ 			modules: ['push-privacy'],
+ 		});
+@@ -1558,22 +1558,22 @@ settingsRegistry.addGroup('Push', function () {
+ 
+ settingsRegistry.addGroup('Layout', function () {
+ 	this.section('Login', function () {
+-		this.add('Layout_Login_Hide_Logo', false, {
++		this.add('Layout_Login_Hide_Logo', true, {
+ 			type: 'boolean',
+ 			public: true,
+-			enterprise: true,
++			enterprise: false,
+ 			invalidValue: false,
+ 		});
+-		this.add('Layout_Login_Hide_Title', false, {
++		this.add('Layout_Login_Hide_Title', true, {
+ 			type: 'boolean',
+ 			public: true,
+-			enterprise: true,
++			enterprise: false,
+ 			invalidValue: false,
+ 		});
+-		this.add('Layout_Login_Hide_Powered_By', false, {
++		this.add('Layout_Login_Hide_Powered_By', true, {
+ 			type: 'boolean',
+ 			public: true,
+-			enterprise: true,
++			enterprise: false,
+ 			invalidValue: false,
+ 		});
+ 		this.add('Layout_Login_Template', 'horizontal-template', {
+@@ -1589,7 +1589,7 @@ settingsRegistry.addGroup('Layout', function () {
+ 				},
+ 			],
+ 			public: true,
+-			enterprise: true,
++			enterprise: false,
+ 			invalidValue: 'horizontal-template',
+ 		});
+ 		this.add('Accounts_ShowFormLogin', true, {
+@@ -1638,7 +1638,7 @@ settingsRegistry.addGroup('Layout', function () {
+ 			i18nDescription: 'Layout_Custom_Body_Only_Description',
+ 			type: 'boolean',
+ 			invalidValue: false,
+-			enterprise: true,
++			enterprise: false,
+ 			public: true,
+ 			enableQuery: [
+ 				{
+diff --git a/apps/meteor/client/views/admin/info/UsageCard.tsx b/apps/meteor/client/views/admin/info/UsageCard.tsx
+index 43d169cf68..e5962af81a 100644
+--- a/apps/meteor/client/views/admin/info/UsageCard.tsx
++++ b/apps/meteor/client/views/admin/info/UsageCard.tsx
+@@ -25,7 +25,8 @@ const UsageCard = ({ statistics, vertical }: UsageCardProps): ReactElement => {
+ 		router.push();
+ 	});
+ 
+-	const canViewEngagement = useHasLicenseModule('engagement-dashboard');
++//	const canViewEngagement = useHasLicenseModule('engagement-dashboard');
++	const canViewEngagement = true;
+ 
+ 	return (
+ 		<Card data-qa-id='usage-card'>
+diff --git a/apps/meteor/ee/app/canned-responses/server/settings.ts b/apps/meteor/ee/app/canned-responses/server/settings.ts
+index 204e8f63a4..9e36c8ba74 100644
+--- a/apps/meteor/ee/app/canned-responses/server/settings.ts
++++ b/apps/meteor/ee/app/canned-responses/server/settings.ts
+@@ -8,7 +8,7 @@ export const createSettings = (): void => {
+ 		section: 'Canned_Responses',
+ 		type: 'boolean',
+ 		public: true,
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: false,
+ 		modules: ['canned-responses'],
+ 		enableQuery: omnichannelEnabledQuery,
+diff --git a/apps/meteor/ee/app/license/server/bundles.ts b/apps/meteor/ee/app/license/server/bundles.ts
+index 8eb80d4b8f..c7036920f2 100644
+--- a/apps/meteor/ee/app/license/server/bundles.ts
++++ b/apps/meteor/ee/app/license/server/bundles.ts
+@@ -58,7 +58,7 @@ export function isBundle(moduleName: string): boolean {
+ 
+ 	const bundle = getBundleFromModule(moduleName);
+ 	if (!bundle) {
+-		return false;
++		return true;
+ 	}
+ 
+ 	return true;
+diff --git a/apps/meteor/ee/app/license/server/license.ts b/apps/meteor/ee/app/license/server/license.ts
+index 269866c5da..cc88b9246a 100644
+--- a/apps/meteor/ee/app/license/server/license.ts
++++ b/apps/meteor/ee/app/license/server/license.ts
+@@ -20,8 +20,8 @@ export interface IValidLicense {
+ 	license: ILicense;
+ }
+ 
+-let maxGuestUsers = 0;
+-let maxActiveUsers = 0;
++let maxGuestUsers = 100000;
++let maxActiveUsers = 100000;
+ 
+ class LicenseClass {
+ 	private url: string | null = null;
+@@ -35,8 +35,8 @@ class LicenseClass {
+ 	private modules = new Set<string>();
+ 
+ 	private appsConfig: NonNullable<ILicense['apps']> = {
+-		maxPrivateApps: 3,
+-		maxMarketplaceApps: 5,
++		maxPrivateApps: 30,
++		maxMarketplaceApps: 50,
+ 	};
+ 
+ 	private _validateExpiration(expiration: string): boolean {
+@@ -141,6 +141,7 @@ class LicenseClass {
+ 
+ 	hasAnyValidLicense(): boolean {
+ 		return this.licenses.some((item) => item.valid);
++//		return true;
+ 	}
+ 
+ 	getLicenses(): IValidLicense[] {
+@@ -306,7 +307,8 @@ export function setURL(url: string): void {
+ }
+ 
+ export function hasLicense(feature: string): boolean {
+-	return License.hasModule(feature);
++//	return License.hasModule(feature);
++	return true;
+ }
+ 
+ export function isEnterprise(): boolean {
+diff --git a/apps/meteor/ee/app/livechat-enterprise/server/settings.ts b/apps/meteor/ee/app/livechat-enterprise/server/settings.ts
+index d11af508e9..8054d2a29e 100644
+--- a/apps/meteor/ee/app/livechat-enterprise/server/settings.ts
++++ b/apps/meteor/ee/app/livechat-enterprise/server/settings.ts
+@@ -16,7 +16,7 @@ export const createSettings = async (): Promise<void> => {
+ 			{ key: 'close', i18nLabel: 'Livechat_close_chat' },
+ 			{ key: 'on-hold', i18nLabel: 'Omnichannel_onHold_Chat' },
+ 		],
+-		enterprise: true,
++		enterprise: false,
+ 		public: true,
+ 		invalidValue: 'none',
+ 		modules: ['livechat-enterprise'],
+@@ -29,7 +29,7 @@ export const createSettings = async (): Promise<void> => {
+ 		section: 'Sessions',
+ 		i18nLabel: 'Livechat_abandoned_rooms_closed_custom_message',
+ 		enableQuery: [{ _id: 'Livechat_abandoned_rooms_action', value: 'close' }, omnichannelEnabledQuery],
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: '',
+ 		modules: ['livechat-enterprise'],
+ 	});
+@@ -38,7 +38,7 @@ export const createSettings = async (): Promise<void> => {
+ 		type: 'boolean',
+ 		group: 'Omnichannel',
+ 		section: 'Routing',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: false,
+ 		modules: ['livechat-enterprise'],
+ 		enableQuery: omnichannelEnabledQuery,
+@@ -60,7 +60,7 @@ export const createSettings = async (): Promise<void> => {
+ 				],
+ 				public: true,
+ 				i18nLabel: 'Livechat_business_hour_type',
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: 'Single',
+ 				modules: ['livechat-enterprise'],
+ 				enableQuery: [omnichannelEnabledQuery, businessHoursEnabled],
+@@ -68,12 +68,12 @@ export const createSettings = async (): Promise<void> => {
+ 		});
+ 
+ 		this.section('Queue_management', function () {
+-			this.add('Livechat_waiting_queue', false, {
++			this.add('Livechat_waiting_queue', true, {
+ 				type: 'boolean',
+ 				group: 'Omnichannel',
+ 				section: 'Queue_management',
+ 				i18nLabel: 'Waiting_queue',
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: false,
+ 				modules: ['livechat-enterprise'],
+ 				enableQuery: omnichannelEnabledQuery,
+@@ -86,7 +86,7 @@ export const createSettings = async (): Promise<void> => {
+ 				i18nLabel: 'Waiting_queue_message',
+ 				i18nDescription: 'Waiting_queue_message_description',
+ 				enableQuery: [{ _id: 'Livechat_waiting_queue', value: true }, omnichannelEnabledQuery],
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: '',
+ 				modules: ['livechat-enterprise'],
+ 			});
+@@ -98,7 +98,7 @@ export const createSettings = async (): Promise<void> => {
+ 				i18nLabel: 'Max_number_of_chats_per_agent',
+ 				i18nDescription: 'Max_number_of_chats_per_agent_description',
+ 				enableQuery: [{ _id: 'Livechat_waiting_queue', value: true }, omnichannelEnabledQuery],
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: 0,
+ 				modules: ['livechat-enterprise'],
+ 			});
+@@ -109,7 +109,7 @@ export const createSettings = async (): Promise<void> => {
+ 				section: 'Queue_management',
+ 				i18nLabel: 'Omnichannel_calculate_dispatch_service_queue_statistics',
+ 				enableQuery: [{ _id: 'Livechat_waiting_queue', value: true }, omnichannelEnabledQuery],
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: false,
+ 				modules: ['livechat-enterprise'],
+ 			});
+@@ -125,7 +125,7 @@ export const createSettings = async (): Promise<void> => {
+ 					{ _id: 'Livechat_Routing_Method', value: { $ne: 'Manual_Selection' } },
+ 					omnichannelEnabledQuery,
+ 				],
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: 5,
+ 				modules: ['livechat-enterprise'],
+ 			});
+@@ -137,7 +137,7 @@ export const createSettings = async (): Promise<void> => {
+ 				i18nLabel: 'Number_of_most_recent_chats_estimate_wait_time',
+ 				i18nDescription: 'Number_of_most_recent_chats_estimate_wait_time_description',
+ 				enableQuery: [{ _id: 'Livechat_waiting_queue', value: true }, omnichannelEnabledQuery],
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: 100,
+ 				modules: ['livechat-enterprise'],
+ 			});
+@@ -149,7 +149,7 @@ export const createSettings = async (): Promise<void> => {
+ 				i18nLabel: 'Livechat_maximum_queue_wait_time',
+ 				enableQuery: omnichannelEnabledQuery,
+ 				i18nDescription: 'Livechat_maximum_queue_wait_time_description',
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: -1,
+ 				modules: ['livechat-enterprise'],
+ 			});
+@@ -165,7 +165,7 @@ export const createSettings = async (): Promise<void> => {
+ 				section: 'Queue_management',
+ 				i18nLabel: 'Sorting_mechanism',
+ 				enableQuery: [omnichannelEnabledQuery],
+-				enterprise: true,
++				enterprise: false,
+ 				public: true,
+ 				modules: ['livechat-enterprise'],
+ 				invalidValue: '',
+@@ -177,7 +177,7 @@ export const createSettings = async (): Promise<void> => {
+ 		type: 'boolean',
+ 		group: 'Omnichannel',
+ 		section: 'Routing',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: false,
+ 		modules: ['livechat-enterprise'],
+ 		enableQuery: omnichannelEnabledQuery,
+@@ -187,7 +187,7 @@ export const createSettings = async (): Promise<void> => {
+ 		type: 'int',
+ 		group: 'Omnichannel',
+ 		section: 'Sessions',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: 0,
+ 		modules: ['livechat-enterprise'],
+ 		enableQuery: omnichannelEnabledQuery,
+@@ -198,7 +198,7 @@ export const createSettings = async (): Promise<void> => {
+ 		group: 'Omnichannel',
+ 		section: 'Sessions',
+ 		enableQuery: [{ _id: 'Livechat_auto_close_on_hold_chats_timeout', value: { $gte: 1 } }, omnichannelEnabledQuery],
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: '',
+ 		modules: ['livechat-enterprise'],
+ 	});
+@@ -207,7 +207,7 @@ export const createSettings = async (): Promise<void> => {
+ 		type: 'boolean',
+ 		group: 'Omnichannel',
+ 		section: 'Sessions',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: false,
+ 		public: true,
+ 		modules: ['livechat-enterprise'],
+@@ -219,7 +219,7 @@ export const createSettings = async (): Promise<void> => {
+ 		group: 'Omnichannel',
+ 		section: 'Sessions',
+ 		i18nDescription: 'Livechat_auto_transfer_chat_timeout_description',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: 0,
+ 		modules: ['livechat-enterprise'],
+ 		enableQuery: omnichannelEnabledQuery,
+diff --git a/apps/meteor/ee/server/NetworkBroker.ts b/apps/meteor/ee/server/NetworkBroker.ts
+index b77c269dec..4c1219fd24 100644
+--- a/apps/meteor/ee/server/NetworkBroker.ts
++++ b/apps/meteor/ee/server/NetworkBroker.ts
+@@ -2,7 +2,7 @@ import type { ServiceBroker, Context, ServiceSchema } from 'moleculer';
+ import { asyncLocalStorage } from '@rocket.chat/core-services';
+ import type { IBroker, IBrokerNode, IServiceMetrics, IServiceClass, EventSignatures } from '@rocket.chat/core-services';
+ 
+-import { EnterpriseCheck } from './lib/EnterpriseCheck';
++// import { EnterpriseCheck } from './lib/EnterpriseCheck';
+ 
+ const events: { [k: string]: string } = {
+ 	onNodeConnected: '$node.connected',
+@@ -103,7 +103,7 @@ export class NetworkBroker implements IBroker {
+ 		const service: ServiceSchema = {
+ 			name,
+ 			actions: {},
+-			mixins: !instance.isInternal() ? [EnterpriseCheck] : [],
++//			mixins: !instance.isInternal() ? [EnterpriseCheck] : [],
+ 			...dependencies,
+ 			events: instanceEvents.reduce<Record<string, (ctx: Context) => void>>((map, eventName) => {
+ 				map[eventName] = /^\$/.test(eventName)
+diff --git a/apps/meteor/ee/server/settings/deviceManagement.ts b/apps/meteor/ee/server/settings/deviceManagement.ts
+index 7dcdb53a28..d959835a66 100644
+--- a/apps/meteor/ee/server/settings/deviceManagement.ts
++++ b/apps/meteor/ee/server/settings/deviceManagement.ts
+@@ -4,7 +4,7 @@ export function addSettings(): void {
+ 	settingsRegistry.addGroup('Device_Management', function () {
+ 		this.with(
+ 			{
+-				enterprise: true,
++				enterprise: false,
+ 				modules: ['device-management'],
+ 			},
+ 			function () {
+diff --git a/apps/meteor/ee/server/settings/ldap.ts b/apps/meteor/ee/server/settings/ldap.ts
+index 06638e61af..e7310d7a6c 100644
+--- a/apps/meteor/ee/server/settings/ldap.ts
++++ b/apps/meteor/ee/server/settings/ldap.ts
+@@ -7,7 +7,7 @@ export function addSettings(): void {
+ 		this.with(
+ 			{
+ 				tab: 'LDAP_Enterprise',
+-				enterprise: true,
++				enterprise: false,
+ 				modules: ['ldap-enterprise'],
+ 			},
+ 			function () {
+diff --git a/apps/meteor/ee/server/settings/saml.ts b/apps/meteor/ee/server/settings/saml.ts
+index 450b4c7c89..99d08e8067 100644
+--- a/apps/meteor/ee/server/settings/saml.ts
++++ b/apps/meteor/ee/server/settings/saml.ts
+@@ -16,7 +16,7 @@ export const addSettings = function (name: string): void {
+ 		this.with(
+ 			{
+ 				tab: 'SAML_Enterprise',
+-				enterprise: true,
++				enterprise: false,
+ 				modules: ['saml-enterprise'],
+ 			},
+ 			function () {
+diff --git a/apps/meteor/ee/server/settings/video-conference.ts b/apps/meteor/ee/server/settings/video-conference.ts
+index 8564f9d008..02b655e46f 100644
+--- a/apps/meteor/ee/server/settings/video-conference.ts
++++ b/apps/meteor/ee/server/settings/video-conference.ts
+@@ -4,7 +4,7 @@ export function addSettings(): void {
+ 	settingsRegistry.addGroup('Video_Conference', function () {
+ 		this.with(
+ 			{
+-				enterprise: true,
++				enterprise: false,
+ 				modules: ['videoconference-enterprise'],
+ 			},
+ 			function () {
+diff --git a/apps/meteor/lib/upgradeTab.ts b/apps/meteor/lib/upgradeTab.ts
+index 138a810fef..756279dd23 100644
+--- a/apps/meteor/lib/upgradeTab.ts
++++ b/apps/meteor/lib/upgradeTab.ts
+@@ -15,23 +15,23 @@ export const getUpgradeTabType = ({
+ 	isTrial,
+ 	hadExpiredTrials,
+ }: UpgradeTabConditions): UpgradeTabVariant | false => {
+-	if (!hasValidLicense) {
+-		if (hadExpiredTrials) {
+-			return 'upgrade-your-plan';
+-		}
+-
+-		if (registered) {
+-			return 'go-fully-featured-registered';
+-		}
+-
++//	if (!hasValidLicense) {
++//		if (hadExpiredTrials) {
++//			return 'upgrade-your-plan';
++//		}
++//
++//		if (registered) {
++//			return 'go-fully-featured-registered';
++//		}
++//
+ 		return 'go-fully-featured';
+-	}
+-
+-	if (isTrial) {
+-		return 'trial-enterprise';
+-	}
+-
+-	return false;
++//	}
++//
++//	if (isTrial) {
++//		return 'trial-enterprise';
++//	}
++//
++//	return false;
+ };
+ 
+ export const getUpgradeTabLabel = (type: UpgradeTabVariant | false): UpgradeLabel => {
+diff --git a/packages/core-typings/src/ISetting.ts b/packages/core-typings/src/ISetting.ts
+index 82f89ec91f..45c61e6948 100644
+--- a/packages/core-typings/src/ISetting.ts
++++ b/packages/core-typings/src/ISetting.ts
+@@ -101,7 +101,7 @@ export interface ISettingGroup {
+ }
+ 
+ export interface ISettingEnterprise extends ISettingBase {
+-	enterprise: true;
++	enterprise: false;
+ 	invalidValue: SettingValue;
+ }
+
+diff --git a/apps/meteor/ee/client/sidebar/footer/SidebarFooterWatermark.tsx b/apps/meteor/ee/client/sidebar/footer/SidebarFooterWatermark.tsx
+index d5040baa8b..beefad43c2 100644
+--- a/apps/meteor/ee/client/sidebar/footer/SidebarFooterWatermark.tsx
++++ b/apps/meteor/ee/client/sidebar/footer/SidebarFooterWatermark.tsx
+@@ -11,8 +11,6 @@ export const SidebarFooterWatermark = (): ReactElement | null => {
+ 	const { isLoading, isError, data } = useIsEnterprise();
+ 
+ 	if (isError || isLoading || data?.isEnterprise) {
+-		return null;
+-	}
+ 
+ 	return (
+ 		<Box pi='x16' pbe='x8'>
+@@ -26,4 +24,6 @@ export const SidebarFooterWatermark = (): ReactElement | null => {
+ 			</Box>
+ 		</Box>
+ 	);
++	}
++	return null;
+ };
