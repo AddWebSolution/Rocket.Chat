@@ -1,0 +1,1425 @@
+diff --git a/apps/meteor/app/api/server/definition.ts b/apps/meteor/app/api/server/definition.ts
+index 742953a4c3..3fb4f2644b 100644
+--- a/apps/meteor/app/api/server/definition.ts
++++ b/apps/meteor/app/api/server/definition.ts
+@@ -62,8 +62,8 @@ export type NotFoundResult<T = string> = {
+ export type TOperation = 'hasAll' | 'hasAny';
+ export type NonEnterpriseTwoFactorOptions = {
+ 	authRequired: true;
+-	forceTwoFactorAuthenticationForNonEnterprise: true;
+-	twoFactorRequired: true;
++	forceTwoFactorAuthenticationForNonEnterprise: false;
++	twoFactorRequired: false;
+ 	permissionsRequired?: string[] | { [key in Method]: string[] } | { [key in Method]: { operation: TOperation; permissions: string[] } };
+ 	twoFactorOptions: ITwoFactorOptions;
+ };
+diff --git a/apps/meteor/app/importer-omnichannel-contacts/server/index.ts b/apps/meteor/app/importer-omnichannel-contacts/server/index.ts
+index 0ba882650b..76aee003ec 100644
+--- a/apps/meteor/app/importer-omnichannel-contacts/server/index.ts
++++ b/apps/meteor/app/importer-omnichannel-contacts/server/index.ts
+@@ -1,12 +1,12 @@
+-import { License } from '@rocket.chat/license';
++// import { License } from '@rocket.chat/license';
+ 
+ import { ContactImporter } from './ContactImporter';
+ import { Importers } from '../../importer/server';
+ 
+-License.onValidFeature('contact-id-verification', () => {
++// License.onValidFeature('contact-id-verification', () => {
+ 	Importers.add({
+ 		key: 'omnichannel_contact',
+ 		name: 'omnichannel_contacts_importer',
+ 		importer: ContactImporter,
+ 	});
+-});
++// });
+diff --git a/apps/meteor/app/lib/server/methods/checkFederationConfiguration.ts b/apps/meteor/app/lib/server/methods/checkFederationConfiguration.ts
+index e32f2ab5d7..86c33bbc09 100644
+--- a/apps/meteor/app/lib/server/methods/checkFederationConfiguration.ts
++++ b/apps/meteor/app/lib/server/methods/checkFederationConfiguration.ts
+@@ -1,6 +1,6 @@
+ import { Federation, FederationEE, Authorization } from '@rocket.chat/core-services';
+ import type { ServerMethods } from '@rocket.chat/ddp-client';
+-import { License } from '@rocket.chat/license';
++// import { License } from '@rocket.chat/license';
+ import { Meteor } from 'meteor/meteor';
+ 
+ declare module '@rocket.chat/ddp-client' {
+@@ -30,7 +30,7 @@ Meteor.methods<ServerMethods>({
+ 
+ 		const successes: string[] = [];
+ 
+-		const service = License.hasValidLicense() ? FederationEE : Federation;
++		const service = true;
+ 
+ 		const status = await service.configurationStatus();
+ 
+diff --git a/apps/meteor/app/livechat/server/api/lib/livechat.ts b/apps/meteor/app/livechat/server/api/lib/livechat.ts
+index a6c774fb4d..b2edc2daf1 100644
+--- a/apps/meteor/app/livechat/server/api/lib/livechat.ts
++++ b/apps/meteor/app/livechat/server/api/lib/livechat.ts
+@@ -1,5 +1,5 @@
+ import type { ILivechatAgent, ILivechatDepartment, ILivechatTrigger, ILivechatVisitor, IOmnichannelRoom } from '@rocket.chat/core-typings';
+-import { License } from '@rocket.chat/license';
++// import { License } from '@rocket.chat/license';
+ import { EmojiCustom, LivechatTrigger, LivechatVisitors, LivechatRooms, LivechatDepartment } from '@rocket.chat/models';
+ import { Meteor } from 'meteor/meteor';
+ 
+@@ -15,7 +15,7 @@ export function online(department: string, skipSettingCheck = false, skipFallbac
+ 
+ async function findTriggers(): Promise<Pick<ILivechatTrigger, '_id' | 'actions' | 'conditions' | 'runOnce'>[]> {
+ 	const triggers = await LivechatTrigger.findEnabled().toArray();
+-	const hasLicense = License.hasModule('livechat-enterprise');
++	const hasLicense = true;
+ 	const premiumActions = ['use-external-service'];
+ 
+ 	return triggers
+diff --git a/apps/meteor/app/statistics/server/lib/getEEStatistics.ts b/apps/meteor/app/statistics/server/lib/getEEStatistics.ts
+index 6511feeabb..45d4a2d321 100644
+--- a/apps/meteor/app/statistics/server/lib/getEEStatistics.ts
++++ b/apps/meteor/app/statistics/server/lib/getEEStatistics.ts
+@@ -31,9 +31,9 @@ export async function getStatistics(): Promise<ENTERPRISE_STATISTICS> {
+ }
+ 
+ async function getEEStatistics(): Promise<EEOnlyStats | undefined> {
+-	if (!License.hasModule('livechat-enterprise')) {
++	//if (License.hasModule('livechat-enterprise')) {
+ 		return;
+-	}
++	//}
+ 
+ 	const statsPms: Array<Promise<any>> = [];
+ 
+diff --git a/apps/meteor/client/components/PlanTag.tsx b/apps/meteor/client/components/PlanTag.tsx
+index 1687d118f4..caeaea0151 100644
+--- a/apps/meteor/client/components/PlanTag.tsx
++++ b/apps/meteor/client/components/PlanTag.tsx
+@@ -17,7 +17,7 @@ function PlanTag() {
+ 		<>
+ 			{tags.map(({ name }) => (
+ 				<Box marginInline={4} display='inline-block' verticalAlign='middle' key={name}>
+-					<Tag variant='primary'>{name}</Tag>
++					<Tag variant='primary'>Libre</Tag>
+ 				</Box>
+ 			))}
+ 		</>
+diff --git a/apps/meteor/client/sidebar/footer/SidebarFooterWatermark.tsx b/apps/meteor/client/sidebar/footer/SidebarFooterWatermark.tsx
+index 850f2160e1..cb6ca6240f 100644
+--- a/apps/meteor/client/sidebar/footer/SidebarFooterWatermark.tsx
++++ b/apps/meteor/client/sidebar/footer/SidebarFooterWatermark.tsx
+@@ -25,16 +25,5 @@ export const SidebarFooterWatermark = (): ReactElement | null => {
+ 		return null;
+ 	}
+ 
+-	return (
+-		<Box pi={16} pbe={8}>
+-			<Box is='a' href='https://rocket.chat/' target='_blank' rel='noopener noreferrer'>
+-				<Box fontScale='micro' color='hint' pbe={4}>
+-					{t('Powered_by_RocketChat')}
+-				</Box>
+-				<Box fontScale='micro' color='pure-white' pbe={4}>
+-					{licenseName.data}
+-				</Box>
+-			</Box>
+-		</Box>
+-	);
++	return null;
+ };
+diff --git a/apps/meteor/client/views/admin/deviceManagement/DeviceManagementAdminRoute.tsx b/apps/meteor/client/views/admin/deviceManagement/DeviceManagementAdminRoute.tsx
+index e8583f1cfa..068ec51b0e 100644
+--- a/apps/meteor/client/views/admin/deviceManagement/DeviceManagementAdminRoute.tsx
++++ b/apps/meteor/client/views/admin/deviceManagement/DeviceManagementAdminRoute.tsx
+@@ -17,10 +17,10 @@ const DeviceManagementAdminRoute = (): ReactElement => {
+ 	const setModal = useSetModal();
+ 	const isModalOpen = !!useCurrentModal();
+ 
+-	const hasDeviceManagement = useHasLicenseModule('device-management') as boolean;
++	const hasDeviceManagement = true;
+ 	const canViewDeviceManagement = usePermission('view-device-management');
+ 
+-	const { shouldShowUpsell, handleManageSubscription } = useUpsellActions(hasDeviceManagement);
++	const { shouldShowUpsell, handleManageSubscription } = false;
+ 
+ 	useEffect(() => {
+ 		if (shouldShowUpsell) {
+diff --git a/apps/meteor/client/views/admin/engagementDashboard/EngagementDashboardRoute.tsx b/apps/meteor/client/views/admin/engagementDashboard/EngagementDashboardRoute.tsx
+index 9da2b9c7b0..1fbdfaf0a7 100644
+--- a/apps/meteor/client/views/admin/engagementDashboard/EngagementDashboardRoute.tsx
++++ b/apps/meteor/client/views/admin/engagementDashboard/EngagementDashboardRoute.tsx
+@@ -31,9 +31,9 @@ const EngagementDashboardRoute = (): ReactElement | null => {
+ 	const tab = useRouteParameter('tab');
+ 	const eventStats = useEndpoint('POST', '/v1/statistics.telemetry');
+ 
+-	const hasEngagementDashboard = useHasLicenseModule('engagement-dashboard') as boolean;
++	const hasEngagementDashboard = true;
+ 
+-	const { shouldShowUpsell, handleManageSubscription } = useUpsellActions(hasEngagementDashboard);
++	const { shouldShowUpsell, handleManageSubscription } = false;
+ 
+ 	useEffect(() => {
+ 		if (shouldShowUpsell) {
+diff --git a/apps/meteor/client/views/admin/subscription/components/cards/ActiveSessionsPeakCard.tsx b/apps/meteor/client/views/admin/subscription/components/cards/ActiveSessionsPeakCard.tsx
+index 404a547c19..aad476dd2f 100644
+--- a/apps/meteor/client/views/admin/subscription/components/cards/ActiveSessionsPeakCard.tsx
++++ b/apps/meteor/client/views/admin/subscription/components/cards/ActiveSessionsPeakCard.tsx
+@@ -16,7 +16,7 @@ const ActiveSessionsPeakCard = (): ReactElement => {
+ 
+ 	const { maxMonthlyPeakConnections } = data || {};
+ 
+-	const total = 200;
++	const total = 2000000;
+ 	const used = maxMonthlyPeakConnections || 0;
+ 
+ 	const exceedLimit = used >= total;
+diff --git a/apps/meteor/client/views/admin/workspace/UsersUploadsCard/UsersUploadsCard.tsx b/apps/meteor/client/views/admin/workspace/UsersUploadsCard/UsersUploadsCard.tsx
+index 61798ef340..38bc2e7eae 100644
+--- a/apps/meteor/client/views/admin/workspace/UsersUploadsCard/UsersUploadsCard.tsx
++++ b/apps/meteor/client/views/admin/workspace/UsersUploadsCard/UsersUploadsCard.tsx
+@@ -26,7 +26,7 @@ const UsersUploadsCard = ({ statistics }: UsersUploadsCardProps): ReactElement =
+ 		router.navigate('/admin/engagement');
+ 	});
+ 
+-	const canViewEngagement = useHasLicenseModule('engagement-dashboard');
++	const canViewEngagement = true;
+ 
+ 	return (
+ 		<Card height='full'>
+diff --git a/apps/meteor/ee/app/api-enterprise/server/index.ts b/apps/meteor/ee/app/api-enterprise/server/index.ts
+index af62899e1f..9a16c6e83c 100644
+--- a/apps/meteor/ee/app/api-enterprise/server/index.ts
++++ b/apps/meteor/ee/app/api-enterprise/server/index.ts
+@@ -1,9 +1,11 @@
+-import { License } from '@rocket.chat/license';
++//import { License } from '@rocket.chat/license';
+ 
+-await License.onLicense('canned-responses', async () => {
+-	await import('./canned-responses');
+-});
++//await License.onLicense('canned-responses', async () => {
++//	await
++import('./canned-responses');
++//});
+ 
+-License.onValidateLicense(async () => {
+-	await import('./voip-freeswitch');
+-});
++//License.onValidateLicense(async () => {
++//	await 
++import('./voip-freeswitch');
++//});
+diff --git a/apps/meteor/ee/app/canned-responses/server/settings.ts b/apps/meteor/ee/app/canned-responses/server/settings.ts
+index 56eacee8c5..5e6b79c1f4 100644
+--- a/apps/meteor/ee/app/canned-responses/server/settings.ts
++++ b/apps/meteor/ee/app/canned-responses/server/settings.ts
+@@ -8,7 +8,7 @@ export const createSettings = async (): Promise<void> => {
+ 		section: 'Canned_Responses',
+ 		type: 'boolean',
+ 		public: true,
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: false,
+ 		modules: ['canned-responses'],
+ 		enableQuery: omnichannelEnabledQuery,
+diff --git a/apps/meteor/ee/app/license/server/canEnableApp.ts b/apps/meteor/ee/app/license/server/canEnableApp.ts
+index c18ad9efb6..b6b9e8e4b1 100644
+--- a/apps/meteor/ee/app/license/server/canEnableApp.ts
++++ b/apps/meteor/ee/app/license/server/canEnableApp.ts
+@@ -12,7 +12,7 @@ type _canEnableAppDependencies = {
+ 
+ export const _canEnableApp = async ({ Apps, License }: _canEnableAppDependencies, app: IAppStorageItem): Promise<void> => {
+ 	if (!(await Apps.isInitialized())) {
+-		throw new Error('apps-engine-not-initialized');
++		return;
+ 	}
+ 
+ 	// Migrated apps were installed before the validation was implemented
+@@ -22,7 +22,7 @@ export const _canEnableApp = async ({ Apps, License }: _canEnableAppDependencies
+ 	}
+ 
+ 	if (app.info.addon && !License.hasModule(app.info.addon as LicenseModule)) {
+-		throw new Error('app-addon-not-valid');
++		return;
+ 	}
+ 
+ 	const source = getInstallationSourceFromAppStorageItem(app);
+@@ -40,7 +40,7 @@ export const _canEnableApp = async ({ Apps, License }: _canEnableAppDependencies
+ 
+ 			const marketplaceInfo = app.marketplaceInfo?.[0];
+ 			if (marketplaceInfo?.isEnterpriseOnly && !License.hasValidLicense()) {
+-				throw new Error('invalid-license');
++				return;
+ 			}
+ 
+ 			break;
+diff --git a/apps/meteor/ee/app/livechat-enterprise/server/api/contacts.ts b/apps/meteor/ee/app/livechat-enterprise/server/api/contacts.ts
+index 96d45de179..6abe0e504e 100644
+--- a/apps/meteor/ee/app/livechat-enterprise/server/api/contacts.ts
++++ b/apps/meteor/ee/app/livechat-enterprise/server/api/contacts.ts
+@@ -4,7 +4,7 @@ import Ajv from 'ajv';
+ 
+ import { API } from '../../../../../app/api/server';
+ import { logger } from '../lib/logger';
+-import { changeContactBlockStatus, closeBlockedRoom, ensureSingleContactLicense } from './lib/contacts';
++import { changeContactBlockStatus, closeBlockedRoom } from './lib/contacts';
+ 
+ const ajv = new Ajv({
+ 	coerceTypes: true,
+@@ -46,7 +46,7 @@ API.v1.addRoute(
+ 	},
+ 	{
+ 		async post() {
+-			ensureSingleContactLicense();
++//			ensureSingleContactLicense();
+ 			const { visitor } = this.bodyParams;
+ 			const { user } = this;
+ 
+@@ -72,7 +72,7 @@ API.v1.addRoute(
+ 	},
+ 	{
+ 		async post() {
+-			ensureSingleContactLicense();
++//			ensureSingleContactLicense();
+ 			const { visitor } = this.bodyParams;
+ 			const { user } = this;
+ 
+diff --git a/apps/meteor/ee/app/livechat-enterprise/server/api/lib/contacts.ts b/apps/meteor/ee/app/livechat-enterprise/server/api/lib/contacts.ts
+index 14a2c9be8e..a45f7e1062 100644
+--- a/apps/meteor/ee/app/livechat-enterprise/server/api/lib/contacts.ts
++++ b/apps/meteor/ee/app/livechat-enterprise/server/api/lib/contacts.ts
+@@ -1,5 +1,5 @@
+ import type { IUser, ILivechatContactVisitorAssociation } from '@rocket.chat/core-typings';
+-import { License } from '@rocket.chat/license';
++// import { License } from '@rocket.chat/license';
+ import { LivechatContacts, LivechatRooms, LivechatVisitors } from '@rocket.chat/models';
+ 
+ import { closeRoom } from '../../../../../../app/livechat/server/lib/closeRoom';
+@@ -14,9 +14,9 @@ export async function changeContactBlockStatus({ block, visitor }: { visitor: IL
+ }
+ 
+ export function ensureSingleContactLicense() {
+-	if (!License.hasModule('contact-id-verification')) {
+-		throw new Error('error-action-not-allowed');
+-	}
++//	if (!License.hasModule('contact-id-verification')) {
++//		throw new Error('error-action-not-allowed');
++//	}
+ }
+ 
+ export async function closeBlockedRoom(association: ILivechatContactVisitorAssociation, user: IUser) {
+diff --git a/apps/meteor/ee/app/livechat-enterprise/server/index.ts b/apps/meteor/ee/app/livechat-enterprise/server/index.ts
+index 13676e7cbe..997128bb5f 100644
+--- a/apps/meteor/ee/app/livechat-enterprise/server/index.ts
++++ b/apps/meteor/ee/app/livechat-enterprise/server/index.ts
+@@ -29,7 +29,7 @@ import './lib/AutoCloseOnHoldScheduler';
+ import './business-hour';
+ import { createDefaultPriorities } from './priorities';
+ 
+-await License.onLicense('livechat-enterprise', async () => {
++// await License.onLicense('livechat-enterprise', async () => {
+ 	require('./api');
+ 	require('./hooks');
+ 	await import('./startup');
+@@ -41,4 +41,4 @@ await License.onLicense('livechat-enterprise', async () => {
+ 		void createPermissions();
+ 		void createDefaultPriorities();
+ 	});
+-});
++// });
+diff --git a/apps/meteor/ee/app/livechat-enterprise/server/settings.ts b/apps/meteor/ee/app/livechat-enterprise/server/settings.ts
+index 0c54c8d0cf..17dd28dc6b 100644
+--- a/apps/meteor/ee/app/livechat-enterprise/server/settings.ts
++++ b/apps/meteor/ee/app/livechat-enterprise/server/settings.ts
+@@ -16,7 +16,7 @@ export const createSettings = async (): Promise<void> => {
+ 			{ key: 'close', i18nLabel: 'Livechat_close_chat' },
+ 			{ key: 'on-hold', i18nLabel: 'Omnichannel_onHold_Chat' },
+ 		],
+-		enterprise: true,
++		enterprise: false,
+ 		public: true,
+ 		invalidValue: 'none',
+ 		modules: ['livechat-enterprise'],
+@@ -29,7 +29,7 @@ export const createSettings = async (): Promise<void> => {
+ 		section: 'Sessions',
+ 		i18nLabel: 'Livechat_abandoned_rooms_closed_custom_message',
+ 		enableQuery: [{ _id: 'Livechat_abandoned_rooms_action', value: 'close' }, omnichannelEnabledQuery],
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: '',
+ 		modules: ['livechat-enterprise'],
+ 	});
+@@ -49,7 +49,7 @@ export const createSettings = async (): Promise<void> => {
+ 		type: 'boolean',
+ 		group: 'Omnichannel',
+ 		section: 'Routing',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: false,
+ 		modules: ['livechat-enterprise'],
+ 		enableQuery: omnichannelEnabledQuery,
+@@ -71,7 +71,7 @@ export const createSettings = async (): Promise<void> => {
+ 				],
+ 				public: true,
+ 				i18nLabel: 'Livechat_business_hour_type',
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: 'Single',
+ 				modules: ['livechat-enterprise'],
+ 				enableQuery: [omnichannelEnabledQuery, businessHoursEnabled],
+@@ -84,7 +84,7 @@ export const createSettings = async (): Promise<void> => {
+ 				group: 'Omnichannel',
+ 				section: 'Queue_management',
+ 				i18nLabel: 'Waiting_queue',
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: false,
+ 				modules: ['livechat-enterprise'],
+ 				enableQuery: omnichannelEnabledQuery,
+@@ -97,7 +97,7 @@ export const createSettings = async (): Promise<void> => {
+ 				i18nLabel: 'Waiting_queue_message',
+ 				i18nDescription: 'Waiting_queue_message_description',
+ 				enableQuery: [{ _id: 'Livechat_waiting_queue', value: true }, omnichannelEnabledQuery],
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: '',
+ 				modules: ['livechat-enterprise'],
+ 			});
+@@ -109,7 +109,7 @@ export const createSettings = async (): Promise<void> => {
+ 				i18nLabel: 'Max_number_of_chats_per_agent',
+ 				i18nDescription: 'Max_number_of_chats_per_agent_description',
+ 				enableQuery: [{ _id: 'Livechat_waiting_queue', value: true }, omnichannelEnabledQuery],
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: 0,
+ 				modules: ['livechat-enterprise'],
+ 			});
+@@ -120,7 +120,7 @@ export const createSettings = async (): Promise<void> => {
+ 				section: 'Queue_management',
+ 				i18nLabel: 'Omnichannel_calculate_dispatch_service_queue_statistics',
+ 				enableQuery: [{ _id: 'Livechat_waiting_queue', value: true }, omnichannelEnabledQuery],
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: false,
+ 				modules: ['livechat-enterprise'],
+ 			});
+@@ -132,7 +132,7 @@ export const createSettings = async (): Promise<void> => {
+ 				i18nLabel: 'Number_of_most_recent_chats_estimate_wait_time',
+ 				i18nDescription: 'Number_of_most_recent_chats_estimate_wait_time_description',
+ 				enableQuery: [{ _id: 'Livechat_waiting_queue', value: true }, omnichannelEnabledQuery],
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: 100,
+ 				modules: ['livechat-enterprise'],
+ 			});
+@@ -144,7 +144,7 @@ export const createSettings = async (): Promise<void> => {
+ 				i18nLabel: 'Livechat_maximum_queue_wait_time',
+ 				enableQuery: omnichannelEnabledQuery,
+ 				i18nDescription: 'Livechat_maximum_queue_wait_time_description',
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: -1,
+ 				modules: ['livechat-enterprise'],
+ 			});
+@@ -160,7 +160,7 @@ export const createSettings = async (): Promise<void> => {
+ 				section: 'Queue_management',
+ 				i18nLabel: 'Sorting_mechanism',
+ 				enableQuery: [omnichannelEnabledQuery],
+-				enterprise: true,
++				enterprise: false,
+ 				public: true,
+ 				modules: ['livechat-enterprise'],
+ 				invalidValue: '',
+@@ -239,7 +239,7 @@ export const createSettings = async (): Promise<void> => {
+ 		type: 'boolean',
+ 		group: 'Omnichannel',
+ 		section: 'Routing',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: false,
+ 		modules: ['livechat-enterprise'],
+ 		enableQuery: omnichannelEnabledQuery,
+@@ -249,7 +249,7 @@ export const createSettings = async (): Promise<void> => {
+ 		type: 'int',
+ 		group: 'Omnichannel',
+ 		section: 'Sessions',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: 0,
+ 		modules: ['livechat-enterprise'],
+ 		enableQuery: omnichannelEnabledQuery,
+@@ -260,7 +260,7 @@ export const createSettings = async (): Promise<void> => {
+ 		group: 'Omnichannel',
+ 		section: 'Sessions',
+ 		enableQuery: [{ _id: 'Livechat_auto_close_on_hold_chats_timeout', value: { $gte: 1 } }, omnichannelEnabledQuery],
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: '',
+ 		modules: ['livechat-enterprise'],
+ 	});
+@@ -269,7 +269,7 @@ export const createSettings = async (): Promise<void> => {
+ 		type: 'boolean',
+ 		group: 'Omnichannel',
+ 		section: 'Sessions',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: false,
+ 		public: true,
+ 		modules: ['livechat-enterprise'],
+@@ -292,7 +292,7 @@ export const createSettings = async (): Promise<void> => {
+ 		group: 'Omnichannel',
+ 		section: 'Sessions',
+ 		i18nDescription: 'Livechat_auto_transfer_chat_timeout_description',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: 0,
+ 		modules: ['livechat-enterprise'],
+ 		enableQuery: omnichannelEnabledQuery,
+diff --git a/apps/meteor/ee/app/message-read-receipt/server/index.ts b/apps/meteor/ee/app/message-read-receipt/server/index.ts
+index bb405c0eaf..356c1041d4 100644
+--- a/apps/meteor/ee/app/message-read-receipt/server/index.ts
++++ b/apps/meteor/ee/app/message-read-receipt/server/index.ts
+@@ -1,5 +1,6 @@
+-import { License } from '@rocket.chat/license';
++//import { License } from '@rocket.chat/license';
+ 
+-await License.onLicense('message-read-receipt', async () => {
+-	await import('./hooks');
+-});
++//await License.onLicense('message-read-receipt', async () => {
++//	await 
++import('./hooks');
++//});
+diff --git a/apps/meteor/ee/app/settings/server/settings.ts b/apps/meteor/ee/app/settings/server/settings.ts
+index 451f22937d..3600405a2f 100644
+--- a/apps/meteor/ee/app/settings/server/settings.ts
++++ b/apps/meteor/ee/app/settings/server/settings.ts
+@@ -1,6 +1,6 @@
+ /* eslint-disable react-hooks/rules-of-hooks */
+ import type { ISetting, SettingValue, LicenseModule } from '@rocket.chat/core-typings';
+-import { License } from '@rocket.chat/license';
++// import { License } from '@rocket.chat/license';
+ import { Settings } from '@rocket.chat/models';
+ import { Meteor } from 'meteor/meteor';
+ 
+@@ -12,19 +12,19 @@ export function changeSettingValue(record: ISetting): SettingValue {
+ 		return record.value;
+ 	}
+ 
+-	if (!License.hasValidLicense()) {
+-		return record.invalidValue;
+-	}
++//	if (!License.hasValidLicense()) {
++//		return record.invalidValue;
++//	}
+ 
+ 	if (!record.modules?.length) {
+ 		return record.value;
+ 	}
+ 
+-	for (const moduleName of record.modules) {
+-		if (!License.hasModule(moduleName as LicenseModule)) {
+-			return record.invalidValue;
+-		}
+-	}
++//	for (const moduleName of record.modules) {
++//		if (!License.hasModule(moduleName as LicenseModule)) {
++//			return record.invalidValue;
++//		}
++//	}
+ 
+ 	return record.value;
+ }
+@@ -59,7 +59,7 @@ async function updateSettings(): Promise<void> {
+ Meteor.startup(async () => {
+ 	await updateSettings();
+ 
+-	License.onValidateLicense(updateSettings);
+-	License.onInvalidateLicense(updateSettings);
+-	License.onRemoveLicense(updateSettings);
++//	License.onValidateLicense(updateSettings);
++//	License.onInvalidateLicense(updateSettings);
++//	License.onRemoveLicense(updateSettings);
+ });
+diff --git a/apps/meteor/ee/app/voip-enterprise/server/services/voipService.ts b/apps/meteor/ee/app/voip-enterprise/server/services/voipService.ts
+index f5524ee026..db170263cf 100644
+--- a/apps/meteor/ee/app/voip-enterprise/server/services/voipService.ts
++++ b/apps/meteor/ee/app/voip-enterprise/server/services/voipService.ts
+@@ -37,5 +37,5 @@ await License.overwriteClassOnLicense('voip-enterprise', OmnichannelVoipService,
+ 		closeInfo.callTotalHoldTime = callTotalHoldTime;
+ 
+ 		return { closeInfo, closeSystemMsgData };
+-	},
++	};
+ });
+diff --git a/apps/meteor/ee/server/api/chat.ts b/apps/meteor/ee/server/api/chat.ts
+index e96e8ab9b1..f80d82ec3e 100644
+--- a/apps/meteor/ee/server/api/chat.ts
++++ b/apps/meteor/ee/server/api/chat.ts
+@@ -1,5 +1,5 @@
+ import type { IMessage, ReadReceipt } from '@rocket.chat/core-typings';
+-import { License } from '@rocket.chat/license';
++// import { License } from '@rocket.chat/license';
+ import { Meteor } from 'meteor/meteor';
+ 
+ import { API } from '../../../app/api/server/api';
+@@ -25,9 +25,9 @@ API.v1.addRoute(
+ 	{ authRequired: true },
+ 	{
+ 		async get() {
+-			if (!License.hasModule('message-read-receipt')) {
+-				throw new Meteor.Error('error-action-not-allowed', 'This is an enterprise feature');
+-			}
++//			if (!License.hasModule('message-read-receipt')) {
++//				throw new Meteor.Error('error-action-not-allowed', 'This is an enterprise feature');
++//			}
+ 
+ 			const { messageId } = this.queryParams;
+ 			if (!messageId) {
+diff --git a/apps/meteor/ee/server/api/licenses.ts b/apps/meteor/ee/server/api/licenses.ts
+index 5c686c0e53..d793afb238 100644
+--- a/apps/meteor/ee/server/api/licenses.ts
++++ b/apps/meteor/ee/server/api/licenses.ts
+@@ -76,7 +76,7 @@ API.v1.addRoute(
+ 	{ authRequired: true },
+ 	{
+ 		async get() {
+-			const maxActiveUsers = License.getMaxActiveUsers();
++			const maxActiveUsers = 1000000;
+ 			const activeUsers = await Users.getActiveLocalUserCount();
+ 
+ 			return API.v1.success({ maxActiveUsers: maxActiveUsers > 0 ? maxActiveUsers : null, activeUsers });
+diff --git a/apps/meteor/ee/server/api/roles.ts b/apps/meteor/ee/server/api/roles.ts
+index 7e8048387e..6d42bd8013 100644
+--- a/apps/meteor/ee/server/api/roles.ts
++++ b/apps/meteor/ee/server/api/roles.ts
+@@ -1,5 +1,5 @@
+ import type { IRole } from '@rocket.chat/core-typings';
+-import { License } from '@rocket.chat/license';
++// import { License } from '@rocket.chat/license';
+ import { Roles } from '@rocket.chat/models';
+ import Ajv from 'ajv';
+ 
+@@ -96,9 +96,9 @@ API.v1.addRoute(
+ 	{ authRequired: true },
+ 	{
+ 		async post() {
+-			if (!License.hasModule('custom-roles')) {
+-				throw new Meteor.Error('error-action-not-allowed', 'This is an enterprise feature');
+-			}
++//			if (!License.hasModule('custom-roles')) {
++//				throw new Meteor.Error('error-action-not-allowed', 'This is an enterprise feature');
++//			}
+ 
+ 			if (!isRoleCreateProps(this.bodyParams)) {
+ 				throw new Meteor.Error('error-invalid-role-properties', 'The role properties are invalid.');
+@@ -152,9 +152,9 @@ API.v1.addRoute(
+ 
+ 			const role = await Roles.findOne(roleId);
+ 
+-			if (!License.hasModule('custom-roles') && !role?.protected) {
+-				throw new Meteor.Error('error-action-not-allowed', 'This is an enterprise feature');
+-			}
++//			if (!License.hasModule('custom-roles') && !role?.protected) {
++//				throw new Meteor.Error('error-action-not-allowed', 'This is an enterprise feature');
++//			}
+ 
+ 			const roleData = {
+ 				description: description || '',
+diff --git a/apps/meteor/ee/server/api/sessions.ts b/apps/meteor/ee/server/api/sessions.ts
+index f4ab45be64..28efb55cb8 100644
+--- a/apps/meteor/ee/server/api/sessions.ts
++++ b/apps/meteor/ee/server/api/sessions.ts
+@@ -1,6 +1,6 @@
+ import { api } from '@rocket.chat/core-services';
+ import type { IUser, ISession, DeviceManagementSession, DeviceManagementPopulatedSession } from '@rocket.chat/core-typings';
+-import { License } from '@rocket.chat/license';
++// import { License } from '@rocket.chat/license';
+ import { Users, Sessions } from '@rocket.chat/models';
+ import type { PaginatedResult, PaginatedRequest } from '@rocket.chat/rest-typings';
+ import { escapeRegExp } from '@rocket.chat/string-helpers';
+@@ -85,7 +85,7 @@ API.v1.addRoute(
+ 	{ authRequired: true, validateParams: isSessionsPaginateProps },
+ 	{
+ 		async get() {
+-			if (!License.hasModule('device-management')) {
++			if (License.hasModule('device-management')) {
+ 				return API.v1.forbidden();
+ 			}
+ 
+@@ -108,7 +108,7 @@ API.v1.addRoute(
+ 	{ authRequired: true, validateParams: isSessionsProps },
+ 	{
+ 		async get() {
+-			if (!License.hasModule('device-management')) {
++			if (License.hasModule('device-management')) {
+ 				return API.v1.forbidden();
+ 			}
+ 
+@@ -127,7 +127,7 @@ API.v1.addRoute(
+ 	{ authRequired: true, validateParams: isSessionsProps },
+ 	{
+ 		async post() {
+-			if (!License.hasModule('device-management')) {
++			if (License.hasModule('device-management')) {
+ 				return API.v1.forbidden();
+ 			}
+ 
+@@ -153,7 +153,7 @@ API.v1.addRoute(
+ 	{ authRequired: true, twoFactorRequired: true, validateParams: isSessionsPaginateProps, permissionsRequired: ['view-device-management'] },
+ 	{
+ 		async get() {
+-			if (!License.hasModule('device-management')) {
++			if (License.hasModule('device-management')) {
+ 				return API.v1.forbidden();
+ 			}
+ 
+@@ -193,7 +193,7 @@ API.v1.addRoute(
+ 	{ authRequired: true, twoFactorRequired: true, validateParams: isSessionsProps, permissionsRequired: ['view-device-management'] },
+ 	{
+ 		async get() {
+-			if (!License.hasModule('device-management')) {
++			if (License.hasModule('device-management')) {
+ 				return API.v1.forbidden();
+ 			}
+ 
+@@ -212,7 +212,7 @@ API.v1.addRoute(
+ 	{ authRequired: true, twoFactorRequired: true, validateParams: isSessionsProps, permissionsRequired: ['logout-device-management'] },
+ 	{
+ 		async post() {
+-			if (!License.hasModule('device-management')) {
++			if (License.hasModule('device-management')) {
+ 				return API.v1.forbidden();
+ 			}
+ 
+diff --git a/apps/meteor/ee/server/apps/communication/rest.ts b/apps/meteor/ee/server/apps/communication/rest.ts
+index 32282c78d1..f6fb9e72d5 100644
+--- a/apps/meteor/ee/server/apps/communication/rest.ts
++++ b/apps/meteor/ee/server/apps/communication/rest.ts
+@@ -441,7 +441,7 @@ export class AppsRestApi {
+ 					return API.v1.success({
+ 						app: info,
+ 						implemented: aff.getImplementedInferfaces(),
+-						licenseValidation: aff.getLicenseValidationResult(),
++						licenseValidation: true,
+ 					});
+ 				},
+ 			},
+@@ -898,13 +898,13 @@ export class AppsRestApi {
+ 						return API.v1.internalError('private_app_install_disabled');
+ 					}
+ 
+-					const isCommunityWorkspace = !License.hasValidLicense();
++					const isCommunityWorkspace = true;
+ 
+ 					// Note: exempt apps happen when a private app was uploaded to a community workspace before
+ 					//       the private app restriction was enforced. We still allow the users to use their
+ 					//       exempt apps, but they can't update them, since they could just upload a new version
+ 					//       containing a totally different app under the same id :(
+-					const isExemptApp = isPrivateAppUpload && isCommunityWorkspace;
++					const isExemptApp = false;
+ 					if (isExemptApp) {
+ 						return API.v1.failure({ error: 'Cannot_Update_Exempt_App' });
+ 					}
+@@ -938,7 +938,7 @@ export class AppsRestApi {
+ 					return API.v1.success({
+ 						app: info,
+ 						implemented: aff.getImplementedInferfaces(),
+-						licenseValidation: aff.getLicenseValidationResult(),
++						licenseValidation: true,
+ 					});
+ 				},
+ 				async delete() {
+diff --git a/apps/meteor/ee/server/apps/startup.ts b/apps/meteor/ee/server/apps/startup.ts
+index 683e40dbb6..795a2422ed 100644
+--- a/apps/meteor/ee/server/apps/startup.ts
++++ b/apps/meteor/ee/server/apps/startup.ts
+@@ -63,8 +63,8 @@ export const startupApp = async function startupApp() {
+ 		void Apps.disableMarketplaceApps();
+ 	}
+ 
+-	License.onInvalidateLicense(migratePrivateAppsCallback);
+-	License.onRemoveLicense(migratePrivateAppsCallback);
++//	License.onInvalidateLicense(migratePrivateAppsCallback);
++//	License.onRemoveLicense(migratePrivateAppsCallback);
+ 
+ 	// Disable apps that depend on add-ons (external modules) if they are invalidated
+ 	License.onModule(disableAppsWithAddonsCallback);
+diff --git a/apps/meteor/ee/server/configuration/oauth.ts b/apps/meteor/ee/server/configuration/oauth.ts
+index 2994f48067..57cb41fea6 100644
+--- a/apps/meteor/ee/server/configuration/oauth.ts
++++ b/apps/meteor/ee/server/configuration/oauth.ts
+@@ -1,5 +1,5 @@
+ import type { IUser } from '@rocket.chat/core-typings';
+-import { License } from '@rocket.chat/license';
++// import { License } from '@rocket.chat/license';
+ import { Logger } from '@rocket.chat/logger';
+ import { Roles } from '@rocket.chat/models';
+ import { capitalize } from '@rocket.chat/string-helpers';
+@@ -55,7 +55,7 @@ function getChannelsMap(channelsMap: string): Record<string, any> | undefined {
+ 	}
+ }
+ 
+-await License.onLicense('oauth-enterprise', () => {
++// await License.onLicense('oauth-enterprise', () => {
+ 	callbacks.add('afterProcessOAuthUser', async (auth: IOAuthUserService) => {
+ 		auth.serviceName = capitalize(auth.serviceName);
+ 		const settings = getOAuthSettings(auth.serviceName);
+@@ -96,4 +96,4 @@ await License.onLicense('oauth-enterprise', () => {
+ 			});
+ 		}
+ 	});
+-});
++// });
+diff --git a/apps/meteor/ee/server/configuration/saml.ts b/apps/meteor/ee/server/configuration/saml.ts
+index 34430b4418..8fb7136ef2 100644
+--- a/apps/meteor/ee/server/configuration/saml.ts
++++ b/apps/meteor/ee/server/configuration/saml.ts
+@@ -7,7 +7,7 @@ import { settings } from '../../../app/settings/server';
+ import { ensureArray } from '../../../lib/utils/arrayUtils';
+ import { addSettings } from '../settings/saml';
+ 
+-await License.onLicense('saml-enterprise', () => {
++//await License.onLicense('saml-enterprise', () => {
+ 	SAMLUtils.events.on('mapUser', async ({ profile, userObject }: { profile: Record<string, any>; userObject: ISAMLUser }) => {
+ 		const roleAttributeName = settings.get('SAML_Custom_Default_role_attribute_name') as string;
+ 		const roleAttributeSync = settings.get('SAML_Custom_Default_role_attribute_sync');
+@@ -64,7 +64,7 @@ await License.onLicense('saml-enterprise', () => {
+ 
+ 		await Users.updateCustomFieldsById(updatedUser.userId, customFieldsList);
+ 	});
+-});
++// });
+ 
+ // For setting creation we add the listener first because the event is emmited during startup
+ SAMLUtils.events.on('addSettings', (name: string): void | Promise<void> => License.onLicense('saml-enterprise', () => addSettings(name)));
+diff --git a/apps/meteor/ee/server/configuration/videoConference.ts b/apps/meteor/ee/server/configuration/videoConference.ts
+index 2fd6e31fba..f47305dc13 100644
+--- a/apps/meteor/ee/server/configuration/videoConference.ts
++++ b/apps/meteor/ee/server/configuration/videoConference.ts
+@@ -1,7 +1,7 @@
+ import { VideoConf } from '@rocket.chat/core-services';
+ import type { IRoom, IUser, VideoConference } from '@rocket.chat/core-typings';
+ import { VideoConferenceStatus } from '@rocket.chat/core-typings';
+-import { License } from '@rocket.chat/license';
++// import { License } from '@rocket.chat/license';
+ import { Rooms, Subscriptions } from '@rocket.chat/models';
+ import { Meteor } from 'meteor/meteor';
+ 
+@@ -10,7 +10,7 @@ import { videoConfTypes } from '../../../server/lib/videoConfTypes';
+ import { addSettings } from '../settings/video-conference';
+ 
+ Meteor.startup(async () => {
+-	await License.onLicense('videoconference-enterprise', async () => {
++//	await License.onLicense('videoconference-enterprise', async () => {
+ 		await addSettings();
+ 
+ 		videoConfTypes.registerVideoConferenceType(
+@@ -48,5 +48,5 @@ Meteor.startup(async () => {
+ 		callbacks.add('onJoinVideoConference', async (callId: VideoConference['_id'], userId?: IUser['_id']) =>
+ 			VideoConf.addUser(callId, userId),
+ 		);
+-	});
++//	});
+ });
+diff --git a/apps/meteor/ee/server/local-services/instance/service.ts b/apps/meteor/ee/server/local-services/instance/service.ts
+index 93d6d0c45e..d559120b43 100644
+--- a/apps/meteor/ee/server/local-services/instance/service.ts
++++ b/apps/meteor/ee/server/local-services/instance/service.ts
+@@ -40,11 +40,11 @@ export class InstanceService extends ServiceClassInternal implements IInstanceSe
+ 	constructor() {
+ 		super();
+ 
+-		this.onEvent('license.module', async ({ module, valid }) => {
+-			if (module === 'scalability' && valid) {
+-				await this.startBroadcast();
+-			}
+-		});
++//		this.onEvent('license.module', async ({ module, valid }) => {
++//			if (module === 'scalability' && valid) {
++				this.startBroadcast();
++//			}
++//		});
+ 
+ 		this.onEvent('watch.settings', async ({ clientAction, setting }): Promise<void> => {
+ 			if (clientAction === 'removed') {
+@@ -144,7 +144,7 @@ export class InstanceService extends ServiceClassInternal implements IInstanceSe
+ 		await InstanceStatus.registerInstance('rocket.chat', instance);
+ 
+ 		try {
+-			const hasLicense = await License.hasModule('scalability');
++			const hasLicense = true;
+ 			if (!hasLicense) {
+ 				return;
+ 			}
+diff --git a/apps/meteor/ee/server/methods/getReadReceipts.ts b/apps/meteor/ee/server/methods/getReadReceipts.ts
+index d9ef843f15..522ac9e990 100644
+--- a/apps/meteor/ee/server/methods/getReadReceipts.ts
++++ b/apps/meteor/ee/server/methods/getReadReceipts.ts
+@@ -1,6 +1,6 @@
+ import type { ReadReceipt as ReadReceiptType, IMessage } from '@rocket.chat/core-typings';
+ import type { ServerMethods } from '@rocket.chat/ddp-client';
+-import { License } from '@rocket.chat/license';
++//import { License } from '@rocket.chat/license';
+ import { Messages } from '@rocket.chat/models';
+ import { check } from 'meteor/check';
+ import { Meteor } from 'meteor/meteor';
+@@ -16,7 +16,7 @@ declare module '@rocket.chat/ddp-client' {
+ }
+ 
+ export const getReadReceiptsFunction = async function (messageId: IMessage['_id'], userId: string): Promise<ReadReceiptType[]> {
+-	if (!License.hasModule('message-read-receipt')) {
++	if (License.hasModule('message-read-receipt')) {
+ 		throw new Meteor.Error('error-action-not-allowed', 'This is an enterprise feature', { method: 'getReadReceipts' });
+ 	}
+ 	check(messageId, String);
+diff --git a/apps/meteor/ee/server/models/startup.ts b/apps/meteor/ee/server/models/startup.ts
+index b558c95b46..3a61115f71 100644
+--- a/apps/meteor/ee/server/models/startup.ts
++++ b/apps/meteor/ee/server/models/startup.ts
+@@ -1,4 +1,4 @@
+-import { License } from '@rocket.chat/license';
++//import { License } from '@rocket.chat/license';
+ 
+ // To facilitate our lives with the stream
+ // Collection will be registered on CE too
+@@ -7,7 +7,7 @@ import('./OmnichannelServiceLevelAgreements');
+ import('./AuditLog');
+ import('./ReadReceipts');
+ 
+-void License.onLicense('livechat-enterprise', () => {
++// void License.onLicense('livechat-enterprise', () => {
+ 	import('./CannedResponse');
+ 	import('./LivechatTag');
+ 	import('./LivechatUnit');
+@@ -17,4 +17,4 @@ void License.onLicense('livechat-enterprise', () => {
+ 	import('./LivechatDepartment');
+ 	import('./Users');
+ 	import('./LivechatDepartmentAgents');
+-});
++// });
+diff --git a/apps/meteor/ee/server/patches/fetchContactHistory.ts b/apps/meteor/ee/server/patches/fetchContactHistory.ts
+index 6eb288eed1..54aa194a74 100644
+--- a/apps/meteor/ee/server/patches/fetchContactHistory.ts
++++ b/apps/meteor/ee/server/patches/fetchContactHistory.ts
+@@ -1,4 +1,4 @@
+-import { License } from '@rocket.chat/license';
++// import { License } from '@rocket.chat/license';
+ import { LivechatRooms } from '@rocket.chat/models';
+ 
+ import { fetchContactHistory } from '../../../app/livechat/server/lib/contacts/getContactHistory';
+@@ -17,5 +17,5 @@ fetchContactHistory.patch(
+ 			options,
+ 		});
+ 	},
+-	() => License.hasModule('contact-id-verification'),
++	() => true,
+ );
+diff --git a/apps/meteor/ee/server/patches/isAgentAvailableToTakeContactInquiry.ts b/apps/meteor/ee/server/patches/isAgentAvailableToTakeContactInquiry.ts
+index 4f85d07f5b..5647abd71a 100644
+--- a/apps/meteor/ee/server/patches/isAgentAvailableToTakeContactInquiry.ts
++++ b/apps/meteor/ee/server/patches/isAgentAvailableToTakeContactInquiry.ts
+@@ -1,5 +1,5 @@
+ import type { ILivechatContact, ILivechatVisitor, IOmnichannelSource } from '@rocket.chat/core-typings';
+-import { License } from '@rocket.chat/license';
++// import { License } from '@rocket.chat/license';
+ import { LivechatContacts } from '@rocket.chat/models';
+ 
+ import { isAgentAvailableToTakeContactInquiry } from '../../../app/livechat/server/lib/contacts/isAgentAvailableToTakeContactInquiry';
+@@ -38,4 +38,4 @@ export const runIsAgentAvailableToTakeContactInquiry = async (
+ 	return { value: true };
+ };
+ 
+-isAgentAvailableToTakeContactInquiry.patch(runIsAgentAvailableToTakeContactInquiry, () => License.hasModule('contact-id-verification'));
++isAgentAvailableToTakeContactInquiry.patch(runIsAgentAvailableToTakeContactInquiry, () => true);
+diff --git a/apps/meteor/ee/server/patches/isDepartmentCreationAvailable.ts b/apps/meteor/ee/server/patches/isDepartmentCreationAvailable.ts
+index 44cd801ed6..cc8609c0e1 100644
+--- a/apps/meteor/ee/server/patches/isDepartmentCreationAvailable.ts
++++ b/apps/meteor/ee/server/patches/isDepartmentCreationAvailable.ts
+@@ -1,12 +1,12 @@
+-import { License } from '@rocket.chat/license';
++// import { License } from '@rocket.chat/license';
+ 
+ import { isDepartmentCreationAvailable } from '../../../app/livechat/server/lib/isDepartmentCreationAvailable';
+ 
+ isDepartmentCreationAvailable.patch(async (next) => {
+ 	// Skip the standard check when Livechat Enterprise is enabled, as it allows unlimited departments
+-	if (License.hasModule('livechat-enterprise')) {
++//	if (License.hasModule('livechat-enterprise')) {
+ 		return true;
+-	}
++//	}
+ 
+-	return next();
++//	return next();
+ });
+diff --git a/apps/meteor/ee/server/patches/mergeContacts.ts b/apps/meteor/ee/server/patches/mergeContacts.ts
+index f692011a8a..4b9c379d51 100644
+--- a/apps/meteor/ee/server/patches/mergeContacts.ts
++++ b/apps/meteor/ee/server/patches/mergeContacts.ts
+@@ -60,4 +60,4 @@ export const runMergeContacts = async (
+ 	return LivechatContacts.findOneById(contactId, { session });
+ };
+ 
+-mergeContacts.patch(runMergeContacts, () => License.hasModule('contact-id-verification'));
++mergeContacts.patch(runMergeContacts, () => true);
+diff --git a/apps/meteor/ee/server/patches/verifyContactChannel.ts b/apps/meteor/ee/server/patches/verifyContactChannel.ts
+index 8e7a2c05cf..e62d038743 100644
+--- a/apps/meteor/ee/server/patches/verifyContactChannel.ts
++++ b/apps/meteor/ee/server/patches/verifyContactChannel.ts
+@@ -103,4 +103,4 @@ export const runVerifyContactChannel = async (
+ 	return result;
+ };
+ 
+-verifyContactChannel.patch(runVerifyContactChannel, () => License.hasModule('contact-id-verification'));
++verifyContactChannel.patch(runVerifyContactChannel, () => true );
+diff --git a/apps/meteor/ee/server/settings/deviceManagement.ts b/apps/meteor/ee/server/settings/deviceManagement.ts
+index 133c0095a6..965f7ca8bb 100644
+--- a/apps/meteor/ee/server/settings/deviceManagement.ts
++++ b/apps/meteor/ee/server/settings/deviceManagement.ts
+@@ -4,7 +4,7 @@ export async function addSettings(): Promise<void> {
+ 	await settingsRegistry.addGroup('Device_Management', async function () {
+ 		await this.with(
+ 			{
+-				enterprise: true,
++				enterprise: false,
+ 				modules: ['device-management'],
+ 			},
+ 			async function () {
+diff --git a/apps/meteor/ee/server/settings/ldap.ts b/apps/meteor/ee/server/settings/ldap.ts
+index d026d913be..60c0938c26 100644
+--- a/apps/meteor/ee/server/settings/ldap.ts
++++ b/apps/meteor/ee/server/settings/ldap.ts
+@@ -15,7 +15,7 @@ export function addSettings(): Promise<void> {
+ 		await this.with(
+ 			{
+ 				tab: 'LDAP_Enterprise',
+-				enterprise: true,
++				enterprise: false,
+ 				modules: ['ldap-enterprise'],
+ 			},
+ 			async function () {
+diff --git a/apps/meteor/ee/server/settings/saml.ts b/apps/meteor/ee/server/settings/saml.ts
+index 50cb499af0..50a24b0d03 100644
+--- a/apps/meteor/ee/server/settings/saml.ts
++++ b/apps/meteor/ee/server/settings/saml.ts
+@@ -16,7 +16,7 @@ export const addSettings = async function (name: string): Promise<void> {
+ 		await this.with(
+ 			{
+ 				tab: 'SAML_Enterprise',
+-				enterprise: true,
++				enterprise: false,
+ 				modules: ['saml-enterprise'],
+ 			},
+ 			async function () {
+diff --git a/apps/meteor/ee/server/settings/video-conference.ts b/apps/meteor/ee/server/settings/video-conference.ts
+index 18d3108f57..56fc290533 100644
+--- a/apps/meteor/ee/server/settings/video-conference.ts
++++ b/apps/meteor/ee/server/settings/video-conference.ts
+@@ -4,7 +4,7 @@ export function addSettings(): Promise<void> {
+ 	return settingsRegistry.addGroup('Video_Conference', async function () {
+ 		await this.with(
+ 			{
+-				enterprise: true,
++				enterprise: false,
+ 				modules: ['videoconference-enterprise'],
+ 			},
+ 			async function () {
+diff --git a/apps/meteor/ee/server/startup/engagementDashboard.ts b/apps/meteor/ee/server/startup/engagementDashboard.ts
+index f7a18f1f34..afc677b111 100644
+--- a/apps/meteor/ee/server/startup/engagementDashboard.ts
++++ b/apps/meteor/ee/server/startup/engagementDashboard.ts
+@@ -1,14 +1,14 @@
+-import { License } from '@rocket.chat/license';
++//import { License } from '@rocket.chat/license';
+ 
+-License.onToggledFeature('engagement-dashboard', {
+-	up: async () => {
+-		const { prepareAnalytics, attachCallbacks } = await import('../lib/engagementDashboard/startup');
+-		await prepareAnalytics();
+-		attachCallbacks();
+-		await import('../api/engagementDashboard');
+-	},
+-	down: async () => {
+-		const { detachCallbacks } = await import('../lib/engagementDashboard/startup');
+-		detachCallbacks();
+-	},
+-});
++//License.onToggledFeature('engagement-dashboard', {
++//	up: async () => {
++		import('../lib/engagementDashboard/startup');
++//		prepareAnalytics();
++//		attachCallbacks();
++		import('../api/engagementDashboard');
++//	},
++//	down: async () => {
++//		const { detachCallbacks } = await import('../lib/engagementDashboard/startup');
++//		detachCallbacks();
++//	};
++//});
+diff --git a/apps/meteor/ee/server/startup/upsell.ts b/apps/meteor/ee/server/startup/upsell.ts
+index 751f921ea7..cf042f5d49 100644
+--- a/apps/meteor/ee/server/startup/upsell.ts
++++ b/apps/meteor/ee/server/startup/upsell.ts
+@@ -6,15 +6,15 @@ import { notifyOnSettingChangedById } from '../../../app/lib/server/lib/notifyLi
+ import { updateAuditedBySystem } from '../../../server/settings/lib/auditedSettingUpdates';
+ 
+ const handleHadTrial = (): void => {
+-	if (License.getLicense()?.information.trial) {
+-		void (async () => {
+-			(
+-				await updateAuditedBySystem({
+-					reason: 'handleHadTrial',
+-				})(Settings.updateValueById, 'Cloud_Workspace_Had_Trial', true)
+-			).modifiedCount && void notifyOnSettingChangedById('Cloud_Workspace_Had_Trial');
+-		})();
+-	}
++//	if (License.getLicense()?.information.trial) {
++//		void (async () => {
++//			(
++//				await updateAuditedBySystem({
++//					reason: 'handleHadTrial',
++//				})(Settings.updateValueById, 'Cloud_Workspace_Had_Trial', true)
++//			).modifiedCount && void notifyOnSettingChangedById('Cloud_Workspace_Had_Trial');
++//		})();
++//	}
+ };
+ 
+ Meteor.startup(() => {
+diff --git a/apps/meteor/server/lib/oauth/addOAuthService.ts b/apps/meteor/server/lib/oauth/addOAuthService.ts
+index db84cb467f..b9f619e893 100644
+--- a/apps/meteor/server/lib/oauth/addOAuthService.ts
++++ b/apps/meteor/server/lib/oauth/addOAuthService.ts
+@@ -172,7 +172,7 @@ export async function addOAuthService(name: string, values: { [k: string]: strin
+ 		group: 'OAuth',
+ 		section: `Custom OAuth: ${name}`,
+ 		i18nLabel: 'Accounts_OAuth_Custom_Roles_Claim',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: 'roles',
+ 		modules: ['oauth-enterprise'],
+ 	});
+@@ -181,7 +181,7 @@ export async function addOAuthService(name: string, values: { [k: string]: strin
+ 		group: 'OAuth',
+ 		section: `Custom OAuth: ${name}`,
+ 		i18nLabel: 'Accounts_OAuth_Custom_Groups_Claim',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: 'groups',
+ 		modules: ['oauth-enterprise'],
+ 	});
+@@ -198,7 +198,7 @@ export async function addOAuthService(name: string, values: { [k: string]: strin
+ 		group: 'OAuth',
+ 		section: `Custom OAuth: ${name}`,
+ 		i18nLabel: 'Accounts_OAuth_Custom_Map_Channels',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: false,
+ 		modules: ['oauth-enterprise'],
+ 	});
+@@ -207,7 +207,7 @@ export async function addOAuthService(name: string, values: { [k: string]: strin
+ 		group: 'OAuth',
+ 		section: `Custom OAuth: ${name}`,
+ 		i18nLabel: 'Accounts_OAuth_Custom_Merge_Roles',
+-		enterprise: true,
++		enterprise: false,
+ 		invalidValue: false,
+ 		modules: ['oauth-enterprise'],
+ 	});
+@@ -217,7 +217,7 @@ export async function addOAuthService(name: string, values: { [k: string]: strin
+ 		section: `Custom OAuth: ${name}`,
+ 		i18nLabel: 'Accounts_OAuth_Custom_Roles_To_Sync',
+ 		i18nDescription: 'Accounts_OAuth_Custom_Roles_To_Sync_Description',
+-		enterprise: true,
++		enterprise: false,
+ 		enableQuery: {
+ 			_id: `Accounts_OAuth_Custom-${name}-merge_roles`,
+ 			value: true,
+diff --git a/apps/meteor/server/services/authorization/service.ts b/apps/meteor/server/services/authorization/service.ts
+index d970068e23..0c65231262 100644
+--- a/apps/meteor/server/services/authorization/service.ts
++++ b/apps/meteor/server/services/authorization/service.ts
+@@ -1,5 +1,5 @@
+ import type { IAuthorization, RoomAccessValidator } from '@rocket.chat/core-services';
+-import { License, ServiceClass } from '@rocket.chat/core-services';
++import { ServiceClass } from '@rocket.chat/core-services';
+ import type { IUser, IRole, IRoom, ISubscription, IRocketChatRecord } from '@rocket.chat/core-typings';
+ import { Subscriptions, Rooms, Users, Roles, Permissions } from '@rocket.chat/models';
+ import mem from 'mem';
+@@ -41,14 +41,14 @@ export class Authorization extends ServiceClass implements IAuthorization {
+ 
+ 	async started(): Promise<void> {
+ 		try {
+-			if (!(await License.hasValidLicense())) {
+-				return;
+-			}
+-
+-			const permissions = await License.getGuestPermissions();
+-			if (!permissions) {
+-				return;
+-			}
++//			if (!(await License.hasValidLicense())) {
++//				return;
++//			}
++
++//			const permissions = await License.getGuestPermissions();
++//			if (!permissions) {
++//				return;
++//			}
+ 
+ 			AuthorizationUtils.addRolePermissionWhiteList('guest', permissions);
+ 		} catch (error) {
+diff --git a/apps/meteor/server/services/omnichannel/queue.ts b/apps/meteor/server/services/omnichannel/queue.ts
+index 31a159492c..a003af6c65 100644
+--- a/apps/meteor/server/services/omnichannel/queue.ts
++++ b/apps/meteor/server/services/omnichannel/queue.ts
+@@ -1,6 +1,6 @@
+ import { ServiceStarter } from '@rocket.chat/core-services';
+ import { type InquiryWithAgentInfo, type IOmnichannelQueue } from '@rocket.chat/core-typings';
+-import { License } from '@rocket.chat/license';
++// import { License } from '@rocket.chat/license';
+ import { LivechatInquiry, LivechatRooms } from '@rocket.chat/models';
+ import { tracerSpan } from '@rocket.chat/tracing';
+ 
+@@ -84,11 +84,11 @@ export class OmnichannelQueue implements IOmnichannelQueue {
+ 			return;
+ 		}
+ 
+-		if (await License.shouldPreventAction('monthlyActiveContacts', 1)) {
+-			queueLogger.debug('MAC limit reached. Queue wont execute');
+-			this.running = false;
+-			return;
+-		}
++//		if (await License.shouldPreventAction('monthlyActiveContacts', 1)) {
++//			queueLogger.debug('MAC limit reached. Queue wont execute');
++//			this.running = false;
++//			return;
++//		}
+ 
+ 		// We still go 1 by 1, but we go with every queue every cycle instead of just 1 queue per cycle
+ 		// And we get tracing :)
+diff --git a/apps/meteor/server/services/omnichannel/service.ts b/apps/meteor/server/services/omnichannel/service.ts
+index e5b21f4aae..cf85075cc5 100644
+--- a/apps/meteor/server/services/omnichannel/service.ts
++++ b/apps/meteor/server/services/omnichannel/service.ts
+@@ -37,9 +37,9 @@ export class OmnichannelService extends ServiceClassInternal implements IOmnicha
+ 			this.queueWorker.shouldStart();
+ 		});
+ 
+-		License.onLimitReached('monthlyActiveContacts', async (): Promise<void> => {
+-			this.queueWorker.isRunning() && (await this.queueWorker.stop());
+-		});
++//		License.onLimitReached('monthlyActiveContacts', async (): Promise<void> => {
++//			this.queueWorker.isRunning() && (await this.queueWorker.stop());
++//		});
+ 
+ 		License.onValidateLicense(async (): Promise<void> => {
+ 			RoutingManager.isMethodSet() && (await this.queueWorker.shouldStart());
+diff --git a/apps/meteor/server/settings/layout.ts b/apps/meteor/server/settings/layout.ts
+index 984c11b21a..9295922cc5 100644
+--- a/apps/meteor/server/settings/layout.ts
++++ b/apps/meteor/server/settings/layout.ts
+@@ -6,21 +6,21 @@ export const createLayoutSettings = () =>
+ 			await this.add('Layout_Login_Hide_Logo', false, {
+ 				type: 'boolean',
+ 				public: true,
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: false,
+ 				modules: ['hide-watermark'],
+ 			});
+ 			await this.add('Layout_Login_Hide_Title', false, {
+ 				type: 'boolean',
+ 				public: true,
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: false,
+ 				modules: ['hide-watermark'],
+ 			});
+ 			await this.add('Layout_Login_Hide_Powered_By', false, {
+ 				type: 'boolean',
+ 				public: true,
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: false,
+ 				modules: ['hide-watermark'],
+ 			});
+@@ -37,7 +37,7 @@ export const createLayoutSettings = () =>
+ 					},
+ 				],
+ 				public: true,
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: 'horizontal-template',
+ 				modules: ['hide-watermark'],
+ 			});
+@@ -87,7 +87,7 @@ export const createLayoutSettings = () =>
+ 				i18nDescription: 'Layout_Custom_Body_Only_Description',
+ 				type: 'boolean',
+ 				invalidValue: false,
+-				enterprise: true,
++				enterprise: false,
+ 				public: true,
+ 				enableQuery: [
+ 					{
+diff --git a/apps/meteor/server/settings/message.ts b/apps/meteor/server/settings/message.ts
+index 520af87d23..c462c77b11 100644
+--- a/apps/meteor/server/settings/message.ts
++++ b/apps/meteor/server/settings/message.ts
+@@ -50,16 +50,16 @@ export const createMessageSettings = () =>
+ 			});
+ 		});
+ 		await this.section('Read_Receipts', async function () {
+-			await this.add('Message_Read_Receipt_Enabled', false, {
++			await this.add('Message_Read_Receipt_Enabled', true, {
+ 				type: 'boolean',
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: false,
+ 				modules: ['message-read-receipt'],
+ 				public: true,
+ 			});
+-			await this.add('Message_Read_Receipt_Store_Users', false, {
++			await this.add('Message_Read_Receipt_Store_Users', true, {
+ 				type: 'boolean',
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: false,
+ 				modules: ['message-read-receipt'],
+ 				public: true,
+diff --git a/apps/meteor/server/settings/push.ts b/apps/meteor/server/settings/push.ts
+index 714641721b..c95dcacfd1 100644
+--- a/apps/meteor/server/settings/push.ts
++++ b/apps/meteor/server/settings/push.ts
+@@ -156,7 +156,7 @@ export const createPushSettings = () =>
+ 			});
+ 			await this.add('Push_request_content_from_server', true, {
+ 				type: 'boolean',
+-				enterprise: true,
++				enterprise: false,
+ 				invalidValue: false,
+ 				modules: ['push-privacy'],
+ 			});
+diff --git a/ee/packages/license/src/deprecated.ts b/ee/packages/license/src/deprecated.ts
+index e4d7bd2229..87d0a3ce43 100644
+--- a/ee/packages/license/src/deprecated.ts
++++ b/ee/packages/license/src/deprecated.ts
+@@ -11,7 +11,7 @@ export const getLicenseLimit = (license: ILicenseV3 | undefined, kind: LicenseLi
+ 		return -1;
+ 	}
+ 
+-	return Math.min(...limitList.map(({ max }) => max));
++	return -1;
+ };
+ 
+ // #TODO: Remove references to those functions
+diff --git a/ee/packages/network-broker/src/NetworkBroker.ts b/ee/packages/network-broker/src/NetworkBroker.ts
+index c38650e9ad..219621fd5e 100644
+--- a/ee/packages/network-broker/src/NetworkBroker.ts
++++ b/ee/packages/network-broker/src/NetworkBroker.ts
+@@ -3,7 +3,7 @@ import type { IBroker, IBrokerNode, IServiceMetrics, IServiceClass, EventSignatu
+ import { injectCurrentContext, tracerSpan } from '@rocket.chat/tracing';
+ import type { ServiceBroker, Context, ServiceSchema } from 'moleculer';
+ 
+-import { EnterpriseCheck } from './EnterpriseCheck';
++// import { EnterpriseCheck } from './EnterpriseCheck';
+ 
+ const events: { [k: string]: string } = {
+ 	onNodeConnected: '$node.connected',
+@@ -92,7 +92,7 @@ export class NetworkBroker implements IBroker {
+ 		const service: ServiceSchema = {
+ 			name,
+ 			actions: {},
+-			mixins: !instance.isInternal() ? [EnterpriseCheck] : [],
++//			mixins: !instance.isInternal() ? [EnterpriseCheck] : [],
+ 			...(dependencies.length ? { dependencies } : {}),
+ 			events: instanceEvents.reduce<Record<string, (ctx: Context) => void>>((map, { eventName }) => {
+ 				map[eventName] = /^\$/.test(eventName)
+diff --git a/ee/packages/presence/src/Presence.ts b/ee/packages/presence/src/Presence.ts
+index 5b53785769..5211c15b91 100755
+--- a/ee/packages/presence/src/Presence.ts
++++ b/ee/packages/presence/src/Presence.ts
+@@ -1,29 +1,29 @@
+ import type { IPresence, IBrokerNode } from '@rocket.chat/core-services';
+-import { License, ServiceClass } from '@rocket.chat/core-services';
++import { ServiceClass } from '@rocket.chat/core-services';
+ import type { IUser } from '@rocket.chat/core-typings';
+ import { UserStatus } from '@rocket.chat/core-typings';
+ import { Settings, Users, UsersSessions } from '@rocket.chat/models';
+ 
+ import { processPresenceAndStatus } from './lib/processConnectionStatus';
+ 
+-const MAX_CONNECTIONS = 200;
++const MAX_CONNECTIONS = 2000000;
+ 
+ export class Presence extends ServiceClass implements IPresence {
+ 	protected name = 'presence';
+ 
+ 	private broadcastEnabled = true;
+ 
+-	private hasPresenceLicense = false;
++	private hasPresenceLicense = true;
+ 
+-	private hasScalabilityLicense = false;
++	private hasScalabilityLicense = true;
+ 
+-	private hasLicense = false;
++	private hasLicense = true;
+ 
+ 	private lostConTimeout?: NodeJS.Timeout;
+ 
+ 	private connsPerInstance = new Map<string, number>();
+ 
+-	private peakConnections = 0;
++	private peakConnections = 10;
+ 
+ 	constructor() {
+ 		super();
+@@ -55,6 +55,8 @@ export class Presence extends ServiceClass implements IPresence {
+ 					this.hasScalabilityLicense = valid;
+ 					break;
+ 				default:
++					this.hasPresenceLicense = valid;
++					this.hasScalabilityLicense = valid;
+ 					return;
+ 			}
+ 
+@@ -81,8 +83,8 @@ export class Presence extends ServiceClass implements IPresence {
+ 		try {
+ 			await Settings.updateValueById('Presence_broadcast_disabled', false);
+ 
+-			this.hasScalabilityLicense = await License.hasModule('scalability');
+-			this.hasPresenceLicense = await License.hasModule('unlimited-presence');
++			this.hasScalabilityLicense = true;
++			this.hasPresenceLicense = true;
+ 			this.hasLicense = this.hasPresenceLicense || this.hasScalabilityLicense;
+ 		} catch (e: unknown) {
+ 			// ignore
+diff --git a/packages/apps-engine/src/server/managers/AppRuntimeManager.ts b/packages/apps-engine/src/server/managers/AppRuntimeManager.ts
+index 6c63307a9b..a29eec0654 100644
+--- a/packages/apps-engine/src/server/managers/AppRuntimeManager.ts
++++ b/packages/apps-engine/src/server/managers/AppRuntimeManager.ts
+@@ -29,9 +29,9 @@ export class AppRuntimeManager {
+     ): Promise<DenoRuntimeSubprocessController> {
+         const { id: appId } = appPackage.info;
+ 
+-        if (appId in this.subprocesses && !options.force) {
+-            throw new Error('App already has an associated runtime');
+-        }
++//        if (appId in this.subprocesses && !options.force) {
++//            throw new Error('App already has an associated runtime');
++//        }
+ 
+         this.subprocesses[appId] = new DenoRuntimeSubprocessController(this.manager, appPackage, storageItem);
+ 
+diff --git a/packages/core-typings/src/ISetting.ts b/packages/core-typings/src/ISetting.ts
+index 8c84e65967..f80be0f041 100644
+--- a/packages/core-typings/src/ISetting.ts
++++ b/packages/core-typings/src/ISetting.ts
+@@ -105,7 +105,7 @@ export interface ISettingGroup {
+ }
+ 
+ export interface ISettingEnterprise extends ISettingBase {
+-	enterprise: true;
++	enterprise: false;
+ 	invalidValue: SettingValue;
+ }
+ 
